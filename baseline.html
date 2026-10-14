@@ -760,16 +760,21 @@
     }
 
     function playPacedAudio(lang) {
-      if (!('speechSynthesis' in window)) return;
-      const synth = window.speechSynthesis;
-      synth.cancel();
-      wordList.forEach((w) => {
-        const utter = new SpeechSynthesisUtterance(w[lang]);
-        utter.lang = lang === 'ko' ? 'ko-KR' : 'en-US';
-        utter.rate = 0.9;
-        synth.speak(utter);
-      });
-    }
+  if (!('speechSynthesis' in window)) return;
+  const synth = window.speechSynthesis;
+  synth.cancel(); // Stop any active audio
+
+  const speechLang = lang === 'ko' ? 'ko-KR' : 'en-US';
+
+  wordList.forEach((w, index) => {
+    setTimeout(() => {
+      const utter = new SpeechSynthesisUtterance(w[lang]);
+      utter.lang = speechLang;
+      utter.rate = 0.9;
+      synth.speak(utter);
+    }, index * 1000); // 1-second interval pacing per word
+  });
+}
 
     function calcCog() {
       let orient = document.querySelectorAll('.cog-orient:checked').length;
