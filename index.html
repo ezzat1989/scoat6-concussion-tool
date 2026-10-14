@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCOAT6 Dual-Language Concussion Assessment Tool</title>
+  <title>SCOAT6 Acute Clinical Assessment Tool</title>
 
   <!-- Tailwind CSS & html2pdf CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,6 @@
       body { background-color: #ffffff !important; color: #000000 !important; }
       .no-print { display: none !important; }
       .print-only { display: block !important; }
-      .page-break { page-break-before: always; }
       .card-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
     }
     .print-only { display: none; }
@@ -28,7 +27,7 @@
       <div class="flex items-center space-x-3">
         <span class="text-2xl">🧠</span>
         <div>
-          <h1 class="font-bold text-lg leading-tight" data-i18n="appTitle">SCOAT6 Evaluator</h1>
+          <h1 class="font-bold text-lg leading-tight" data-i18n="appTitle">SCOAT6 Acute Assessment</h1>
           <p class="text-xs text-slate-400" data-i18n="appSub">Sport Concussion Office Assessment Tool (6th Ed.)</p>
         </div>
       </div>
@@ -57,27 +56,22 @@
   </header>
 
   <!-- MULTI-ASSESSMENT NAVIGATION BAR -->
-<div class="bg-slate-800 text-white border-b border-slate-700 no-print">
-  <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-2 items-center justify-between text-xs">
-    <span class="text-slate-400 font-semibold uppercase tracking-wider">Assessment Type:</span>
-    <div class="flex flex-wrap gap-2">
-      <!-- Active Link (Current SCOAT6 Office App) -->
-      <a href="index.html" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 shadow">
-        <span>🏥</span> Acute SCOAT6 Clinical
-      </a>
-      
-      <!-- Baseline Assessment Button -->
-      <a href="baseline.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
-        <span>📋</span> Baseline SCOAT6
-      </a>
-
-      <!-- Follow-up Assessment Button -->
-      <a href="followup.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
-        <span>🔄</span> Follow-up Assessment
-      </a>
+  <div class="bg-slate-800 text-white border-b border-slate-700 no-print">
+    <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-2 items-center justify-between text-xs">
+      <span class="text-slate-400 font-semibold uppercase tracking-wider" data-i18n="navModeLabel">Assessment Mode:</span>
+      <div class="flex flex-wrap gap-2">
+        <a href="index.html" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 shadow">
+          <span>🏥</span> <span data-i18n="modeAcute">Acute SCOAT6 Clinical</span>
+        </a>
+        <a href="baseline.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>📋</span> <span data-i18n="modeBaseline">Baseline SCOAT6</span>
+        </a>
+        <a href="followup.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>🔄</span> <span data-i18n="modeFollowup">Follow-up Assessment</span>
+        </a>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- MAIN WRAPPER -->
   <main class="max-w-6xl mx-auto p-4 md:p-6">
@@ -219,61 +213,61 @@
         </div>
       </div>
 
-     <!-- Immediate Memory Section -->
-<div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
-  <div class="flex flex-wrap justify-between items-center mb-3 border-b pb-2 gap-2">
-    <h3 class="font-bold text-slate-800 text-md" data-i18n="immMemTitle">2. Immediate Memory (10 Words - 3 Trials /30)</h3>
-    <div class="flex items-center space-x-2 no-print">
-      <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 font-medium transition shadow-sm">
-        🔊 <span data-i18n="btnAudioEn">Audio EN</span>
-      </button>
-      <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 font-medium transition shadow-sm">
-        🔊 <span data-i18n="btnAudioKo">Audio KO</span>
-      </button>
-    </div>
-  </div>
+      <!-- Immediate Memory Section -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-3 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800 text-md" data-i18n="immMemTitle">2. Immediate Memory (10 Words - 3 Trials /30)</h3>
+          <div class="flex items-center space-x-2 no-print">
+            <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 font-medium transition shadow-sm">
+              🔊 <span data-i18n="btnAudioEn">Audio EN</span>
+            </button>
+            <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 font-medium transition shadow-sm">
+              🔊 <span data-i18n="btnAudioKo">Audio KO</span>
+            </button>
+          </div>
+        </div>
 
-  <!-- Instruction Box & Hide/Show Reveal Toggle -->
-  <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 mb-4">
-    <div class="flex justify-between items-center mb-2">
-      <strong class="text-sm font-semibold flex items-center gap-1" data-i18n="immInstHeader">
-        📖 Clinical Instructions for Immediate Memory:
-      </strong>
-      <button onclick="toggleInstructions('imm-mem-test-container')" class="no-print bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition shadow-sm">
-        👁️ <span data-i18n="btnToggleTest">Reveal / Hide Test Stimuli</span>
-      </button>
-    </div>
-    
-    <div class="space-y-1.5 text-amber-950 leading-relaxed">
-      <p><strong data-i18n="immInstP1">Protocol:</strong> <span data-i18n="immInstP1Text">All 3 trials must be administered irrespective of the number correct on Trial 1. Read list at the rate of one word per second in a monotone voice.</span></p>
-      <p><strong data-i18n="immInstP2">Trial 1 Instruction:</strong> <em data-i18n="immInstP2Text">"I am going to test your memory. I will read you a list of words and when I am done, repeat back as many words as you can remember, in any order."</em></p>
-      <p><strong data-i18n="immInstP3">Trials 2 & 3 Instruction:</strong> <em data-i18n="immInstP3Text">"I am going to repeat the same list. Repeat back as many words as you can remember in any order, even if you said the word before in a previous trial."</em></p>
-    </div>
-  </div>
+        <!-- Instruction Box & Hide/Show Reveal Toggle -->
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <strong class="text-sm font-semibold flex items-center gap-1" data-i18n="immInstHeader">
+              📖 Clinical Instructions for Immediate Memory:
+            </strong>
+            <button onclick="toggleInstructions('imm-mem-test-container')" class="no-print bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition shadow-sm">
+              👁️ <span data-i18n="btnToggleTest">Reveal / Hide Test Stimuli</span>
+            </button>
+          </div>
+          
+          <div class="space-y-1.5 text-amber-950 leading-relaxed">
+            <p><strong data-i18n="immInstP1">Protocol:</strong> <span data-i18n="immInstP1Text">All 3 trials must be administered irrespective of the number correct on Trial 1. Read list at 1 word per second in a monotone voice.</span></p>
+            <p><strong data-i18n="immInstP2">Trial 1:</strong> <em data-i18n="immInstP2Text">"I am going to test your memory. I will read you a list of words and when I am done, repeat back as many words as you can remember, in any order."</em></p>
+            <p><strong data-i18n="immInstP3">Trials 2 & 3:</strong> <em data-i18n="immInstP3Text">"I am going to repeat the same list. Repeat back as many words as you can remember in any order, even if you said the word before in a previous trial."</em></p>
+          </div>
+        </div>
 
-  <!-- COLLAPSIBLE TEST CONTAINER (Starts hidden so clinician can brief athlete first) -->
-  <div id="imm-mem-test-container" class="hidden transition-all duration-300">
-    <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
-      <!-- Words populated via JavaScript -->
-    </div>
+        <!-- COLLAPSIBLE TEST CONTAINER (Starts hidden so clinician can brief athlete first) -->
+        <div id="imm-mem-test-container" class="hidden transition-all duration-300">
+          <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
+            <!-- Words populated via JavaScript -->
+          </div>
 
-    <!-- Trial Scoring Inputs -->
-    <div class="grid grid-cols-3 gap-3 text-center text-xs mt-4">
-      <div class="bg-slate-50 p-2.5 rounded-lg border">
-        <span class="block font-semibold text-slate-700" data-i18n="trial1Label">Trial 1 (/10)</span>
-        <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
+          <!-- Trial Scoring Inputs -->
+          <div class="grid grid-cols-3 gap-3 text-center text-xs mt-4">
+            <div class="bg-slate-50 p-2.5 rounded-lg border">
+              <span class="block font-semibold text-slate-700" data-i18n="trial1Label">Trial 1 (/10)</span>
+              <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border">
+              <span class="block font-semibold text-slate-700" data-i18n="trial2Label">Trial 2 (/10)</span>
+              <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border">
+              <span class="block font-semibold text-slate-700" data-i18n="trial3Label">Trial 3 (/10)</span>
+              <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="bg-slate-50 p-2.5 rounded-lg border">
-        <span class="block font-semibold text-slate-700" data-i18n="trial2Label">Trial 2 (/10)</span>
-        <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
-      </div>
-      <div class="bg-slate-50 p-2.5 rounded-lg border">
-        <span class="block font-semibold text-slate-700" data-i18n="trial3Label">Trial 3 (/10)</span>
-        <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1 border rounded mt-1.5 bg-white text-indigo-700">
-      </div>
-    </div>
-  </div>
-</div>
 
       <!-- Delayed Recall -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
@@ -443,18 +437,23 @@
 
   <!-- APP JAVASCRIPT LOGIC -->
   <script>
-    // State
+    // State Variables
     let currentLang = 'en';
     let mbessErrors = { dl: 0, sl: 0, tan: 0 };
+    let symptomScores = {};
 
-    // Master Translation Dictionary
+    // Master Dual-Language Dictionary
     const translations = {
       en: {
-        appTitle: "SCOAT6 Evaluator",
+        appTitle: "SCOAT6 Acute Assessment",
         appSub: "Sport Concussion Office Assessment Tool (6th Ed.)",
         navSymp: "Symptoms",
         navSev: "Severity",
         navCog: "Cognitive",
+        navModeLabel: "Assessment Mode:",
+        modeAcute: "Acute SCOAT6 Clinical",
+        modeBaseline: "Baseline SCOAT6",
+        modeFollowup: "Follow-up Assessment",
         tabTriage: "1. Red Flags & Info",
         tabSymptoms: "2. Symptoms (22)",
         tabCognitive: "3. Cognitive Battery",
@@ -494,9 +493,17 @@
         immMemTitle: "2. Immediate Memory (10 Words - 3 Trials /30)",
         btnAudioEn: "Audio EN",
         btnAudioKo: "Audio KO",
-        trial1Label: "Trial 1",
-        trial2Label: "Trial 2",
-        trial3Label: "Trial 3",
+        immInstHeader: "📖 Clinical Instructions for Immediate Memory:",
+        btnToggleTest: "Reveal / Hide Test Stimuli",
+        immInstP1: "Protocol:",
+        immInstP1Text: "All 3 trials must be administered irrespective of the number correct on Trial 1. Read list at 1 word per second in a monotone voice.",
+        immInstP2: "Trial 1:",
+        immInstP2Text: "\"I am going to test your memory. I will read you a list of words and when I am done, repeat back as many words as you can remember, in any order.\"",
+        immInstP3: "Trials 2 & 3:",
+        immInstP3Text: "\"I am going to repeat the same list. Repeat back as many words as you can remember in any order, even if you said the word before in a previous trial.\"",
+        trial1Label: "Trial 1 (/10)",
+        trial2Label: "Trial 2 (/10)",
+        trial3Label: "Trial 3 (/10)",
         delMemTitle: "3. Delayed Recall (/10)",
         delMemSub: "Do not read the words again. Ask athlete to recall as many words from earlier as possible.",
         delMemScoreLbl: "Words Recalled:",
@@ -536,15 +543,17 @@
         noteMbess: "Total error counts",
         sigClinician: "Clinician Signature:",
         sigDate: "Date & License #:"
-        const translations = {
-  },
       },
       ko: {
-        appTitle: "SCOAT6 진단 앱",
+        appTitle: "SCOAT6 급성 평가 앱",
         appSub: "스포츠 뇌진탕 클리닉 평가 도구 (제6판)",
         navSymp: "증상 개수",
         navSev: "심각도 점수",
         navCog: "인지 기능",
+        navModeLabel: "평가 모드:",
+        modeAcute: "급성 SCOAT6 임상",
+        modeBaseline: "기초 SCOAT6",
+        modeFollowup: "추적 관찰 평가",
         tabTriage: "1. 경고 증상 및 정보",
         tabSymptoms: "2. 증상 평가 (22항목)",
         tabCognitive: "3. 인지 기능 검사",
@@ -584,9 +593,17 @@
         immMemTitle: "2. 즉각 기억력 검사 (10단어 - 3회 시행 /30)",
         btnAudioEn: "영어 음성",
         btnAudioKo: "한국어 음성",
-        trial1Label: "1회 차",
-        trial2Label: "2회 차",
-        trial3Label: "3회 차",
+        immInstHeader: "📖 즉각 기억력 검사 임상 지침:",
+        btnToggleTest: "검사 항목 보기 / 숨기기",
+        immInstP1: "검사 프로토콜:",
+        immInstP1Text: "1회 차 맞힌 개수와 상관없이 3회 시행을 모두 완료해야 합니다. 1초에 한 단어씩 억양 없이 단조로운 목소리로 읽어주십시오.",
+        immInstP2: "1회 차 지시문:",
+        immInstP2Text: "\"기억력 검사를 실시하겠습니다. 단어 목록을 읽어드릴 테니 다 읽고 나면 순서 상관없이 기억나는 단어를 모두 말씀해 주세요.\"",
+        immInstP3: "2회 및 3회 차 지시문:",
+        immInstP3Text: "\"동일한 단어 목록을 다시 읽어드리겠습니다. 이전 회 차에 말씀하셨던 단어라도 기억나는 것을 순서 상관없이 다시 말씀해 주세요.\"",
+        trial1Label: "1회 차 (/10)",
+        trial2Label: "2회 차 (/10)",
+        trial3Label: "3회 차 (/10)",
         delMemTitle: "3. 지연 회상 검사 (/10)",
         delMemSub: "단어를 다시 읽어주지 마십시오. 이전에 불러준 단어 중 기억나는 것을 모두 말하도록 하십시오.",
         delMemScoreLbl: "기억해낸 단어 수:",
@@ -594,7 +611,7 @@
         mbessSub: "단단한 바닥에서 눈을 감고 양손을 골반에 얹은 채 20초간 유지합니다. (시행당 최대 10개 오류)",
         stance1: "양발 모아 서기",
         stance2: "비주족 한 발로 서기",
-        stance3: "일렬 서기 (비주족을 뒤로)",
+        stance3: "일렬 서기 (비주족 뒤로)",
         mbessTotalLbl: "총 mBESS 오류 수:",
         repToolbarTitle: "SCOAT6 임상 평가 요약",
         repToolbarSub: "완성된 뇌진탕 평가 보고서를 출력하거나 저장하십시오.",
@@ -626,15 +643,6 @@
         noteMbess: "총 자세 오류 횟수",
         sigClinician: "검사자 서명:",
         sigDate: "날짜 및 면허번호:"
-        immInstHeader: "📖 즉각 기억력 검사 임상 지침:",
-        btnToggleTest: "검사 항목 보기 / 숨기기",
-        immInstP1: "검사 프로토콜:",
-        immInstP1Text: "1회 차 맞힌 개수와 상관없이 3회 시행을 모두 완료해야 합니다. 1초에 한 단어씩 억양 없이 단조로운 목소리로 읽어주십시오.",
-        immInstP2: "1회 차 지시문:",
-        immInstP2Text: "\"기억력 검사를 실시하겠습니다. 단어 목록을 읽어드릴 테니 다 읽고 나면 순서 상관없이 기억나는 단어를 모두 말씀해 주세요.\"",
-        immInstP3: "2회 및 3회 차 지시문:",
-        immInstP3Text: "\"동일한 단어 목록을 다시 읽어드리겠습니다. 이전 회 차에 말씀하셨던 단어라도 기억나는 것을 순서 상관없이 다시 말씀해 주세요.\""
-  }
       }
     };
 
@@ -685,7 +693,7 @@
       document.getElementById('input-eval-date').value = new Date().toISOString().slice(0, 16);
     });
 
-    // Global Language Switcher
+    // Language Switching Engine
     function toggleLanguage() {
       currentLang = currentLang === 'en' ? 'ko' : 'en';
       document.getElementById('lang-btn-txt').textContent = currentLang === 'en' ? '한국어 (Korean)' : 'English (영어)';
@@ -698,20 +706,14 @@
     function applyLanguage() {
       const dict = translations[currentLang];
       
-      // Update text content
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-          el.textContent = dict[key];
-        }
+        if (dict[key]) el.textContent = dict[key];
       });
 
-      // Update input placeholders
       document.querySelectorAll('[data-i18n-ph]').forEach(el => {
         const key = el.getAttribute('data-i18n-ph');
-        if (dict[key]) {
-          el.placeholder = dict[key];
-        }
+        if (dict[key]) el.placeholder = dict[key];
       });
     }
 
@@ -730,7 +732,7 @@
       if (tabId === 'report') updateReport();
     }
 
-    // Render Symptoms Grid
+    // Render Symptoms Inventory
     function renderSymptoms() {
       const container = document.getElementById('symptoms-grid');
       container.innerHTML = symptomList.map((item, idx) => `
@@ -749,7 +751,6 @@
       `).join('');
     }
 
-    let symptomScores = {};
     function setSymptomScore(sympId, val) {
       symptomScores[sympId] = val;
       renderSymptoms();
@@ -767,7 +768,7 @@
       document.getElementById('nav-score-sev').textContent = `${severity}/132`;
     }
 
-    // Render Words
+    // Render Word List
     function renderWords() {
       const container = document.getElementById('words-container');
       container.innerHTML = wordList.map((w, idx) => `
@@ -787,24 +788,25 @@
       }
     }
 
+    // Fixed 1-Word/Sec Paced Audio Reader
     function playPacedAudio(lang) {
-  if (!('speechSynthesis' in window)) return;
-  const synth = window.speechSynthesis;
-  synth.cancel(); // Stop any active audio
+      if (!('speechSynthesis' in window)) return;
+      const synth = window.speechSynthesis;
+      synth.cancel();
 
-  const speechLang = lang === 'ko' ? 'ko-KR' : 'en-US';
+      const speechLang = lang === 'ko' ? 'ko-KR' : 'en-US';
 
-  wordList.forEach((w, index) => {
-    setTimeout(() => {
-      const utter = new SpeechSynthesisUtterance(w[lang]);
-      utter.lang = speechLang;
-      utter.rate = 0.9;
-      synth.speak(utter);
-    }, index * 1000); // 1-second interval pacing per word
-  });
-}
+      wordList.forEach((w, index) => {
+        setTimeout(() => {
+          const utter = new SpeechSynthesisUtterance(w[lang]);
+          utter.lang = speechLang;
+          utter.rate = 0.85;
+          synth.speak(utter);
+        }, index * 1000); // 1-second interval
+      });
+    }
 
-    // Cognitive Calculations
+    // Cognitive Calculation
     function calcCog() {
       let orient = document.querySelectorAll('.cog-orient:checked').length;
       let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
@@ -816,7 +818,7 @@
       document.getElementById('nav-score-cog').textContent = `${total}/50`;
     }
 
-    // mBESS Balance Controls
+    // Balance Controls
     function adjErr(type, delta) {
       mbessErrors[type] = Math.max(0, Math.min(10, mbessErrors[type] + delta));
       document.getElementById(`err-${type}`).textContent = mbessErrors[type];
@@ -825,10 +827,10 @@
       document.getElementById('mbess-total-display').textContent = `${total} / 30`;
     }
 
-    // Toggle Instruction Visibility
+    // Hide/Show Toggle Helper
     function toggleInstructions(id) {
       const el = document.getElementById(id);
-      el.classList.toggle('hidden');
+      if (el) el.classList.toggle('hidden');
     }
 
     // Update Report Tab Content
@@ -841,7 +843,6 @@
       document.getElementById('rep-sport').textContent = document.getElementById('input-sport').value || '--';
       document.getElementById('rep-examiner').textContent = document.getElementById('input-examiner').value || '--';
 
-      // Scores
       const scores = Object.values(symptomScores);
       document.getElementById('rep-symp-num').textContent = scores.filter(s => s > 0).length;
       document.getElementById('rep-symp-sev').textContent = scores.reduce((a, b) => a + b, 0);
@@ -862,7 +863,7 @@
       document.getElementById('rep-mbess-score').textContent = mbessTotal;
     }
 
-    // PDF Download Function
+    // PDF Download
     function downloadPDF() {
       updateReport();
       const element = document.getElementById('pdf-report-content');
@@ -880,7 +881,7 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // Copy Text to EMR
+    // Copy Text to Clipboard
     function copyEMRText() {
       updateReport();
       const name = document.getElementById('input-name').value || 'N/A';
