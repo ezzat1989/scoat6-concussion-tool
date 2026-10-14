@@ -131,4 +131,708 @@
       <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 card-box">
         <div class="flex justify-between items-center mb-2">
           <strong class="text-sm font-semibold" data-i18n="sympInstTitle">Instructions for Player:</strong>
-          <button onclick="toggleInstructions('symp-inst-body')" class="no-print bg-blue-600 hover:bg-blue-700
+          <button onclick="toggleInstructions('symp-inst-body')" class="no-print bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1">
+            👁️ <span data-i18n="btnToggleInst">Hide / Show Instructions</span>
+          </button>
+        </div>
+        <p id="symp-inst-body" data-i18n="sympInstBody">
+          Rate how you currently feel compared to your normal baseline on a scale of 0 (None) to 6 (Severe).
+        </p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-4 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800" data-i18n="sympScaleTitle">SCOAT6 22-Symptom Inventory</h3>
+          <div class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-700">
+            <span data-i18n="lblTotalScore">Total Score:</span> <span id="symp-total-display" class="text-indigo-600 font-bold">0</span> / 22 | 
+            <span data-i18n="lblSeverity">Severity:</span> <span id="sev-total-display" class="text-indigo-600 font-bold">0</span> / 132
+          </div>
+        </div>
+
+        <div id="symptoms-grid" class="space-y-3">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: COGNITIVE BATTERY -->
+    <section id="sec-cognitive" class="tab-content hidden space-y-6">
+      
+      <!-- Orientation -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="orientTitle">1. Orientation (/5)</h3>
+        
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900 mb-3">
+          <div class="flex justify-between items-center">
+            <strong data-i18n="orientInstTitle">Instructions:</strong>
+            <button onclick="toggleInstructions('orient-inst-body')" class="no-print bg-amber-600 text-white px-2 py-0.5 rounded text-[10px]">
+              👁️ <span data-i18n="btnToggleInst">Hide / Show</span>
+            </button>
+          </div>
+          <p id="orient-inst-body" class="mt-1" data-i18n="orientInstBody">Ask the athlete the following questions without checking phones or calendars.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qMonth">What month is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDate">What is today's date?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDay">What day of the week is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qYear">What year is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border md:col-span-2">
+            <span data-i18n="qTime">What time is it right now? (within 1 hour)</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Immediate Memory -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-2 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800 text-md" data-i18n="immMemTitle">2. Immediate Memory (10 Words - 3 Trials /30)</h3>
+          <div class="flex items-center space-x-2 no-print">
+            <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioEn">Audio EN</span></button>
+            <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioKo">Audio KO</span></button>
+          </div>
+        </div>
+
+        <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
+          <!-- Words rendered via JS -->
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial1Label">Trial 1</span>
+            <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial2Label">Trial 2</span>
+            <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial3Label">Trial 3</span>
+            <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Delayed Recall -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="delMemTitle">3. Delayed Recall (/10)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="delMemSub">Do not read the words again. Ask athlete to recall as many words from earlier as possible.</p>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs font-semibold text-slate-700" data-i18n="delMemScoreLbl">Words Recalled:</label>
+          <input type="number" min="0" max="10" value="0" id="delayed-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1.5 border rounded">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 4: mBESS BALANCE -->
+    <section id="sec-balance" class="tab-content hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="mbessTitle">Modified Balance Error Scoring System (mBESS)</h3>
+        <p class="text-xs text-slate-600 mb-4" data-i18n="mbessSub">20-second firm surface stance tests with eyes closed and hands on hips. Maximum 10 errors per trial.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Double Leg -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance1">Double Leg Stance</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-dl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('dl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('dl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <!-- Single Leg -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance2">Single Leg Stance (Non-Dominant)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-sl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('sl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('sl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <!-- Tandem Stance -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance3">Tandem Stance (Non-Dominant Back)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-tan">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('tan', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('tan', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex justify-between items-center text-xs text-indigo-900">
+          <span class="font-semibold" data-i18n="mbessTotalLbl">Total mBESS Errors:</span>
+          <span id="mbess-total-display" class="text-base font-bold text-indigo-700">0 / 30</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: CLINICAL REPORT & EXPORT -->
+    <section id="sec-report" class="tab-content hidden space-y-6">
+      
+      <!-- Top Action Toolbar -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-3 no-print">
+        <div>
+          <h3 class="font-bold text-slate-800" data-i18n="repToolbarTitle">SCOAT6 Clinical Evaluation Summary</h3>
+          <p class="text-xs text-slate-500" data-i18n="repToolbarSub">Export or print the finalized patient concussion assessment report.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="copyEMRText()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📋 <span data-i18n="btnTxtEmr">Copy EMR Text</span>
+          </button>
+          <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📥 <span data-i18n="btnTxtPdf">Download PDF Report</span>
+          </button>
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            🖨️ <span data-i18n="btnTxtPrint">Print Report</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PRINTABLE REPORT CONTAINER -->
+      <div id="pdf-report-content" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 text-slate-900 space-y-6 card-box">
+        
+        <!-- Header -->
+        <div class="border-b pb-4 flex justify-between items-start">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900" data-i18n="repDocTitle">SCOAT6 Clinical Evaluation Report</h2>
+            <p class="text-xs text-slate-500" data-i18n="repDocSub">Sport Concussion Office Assessment Tool - 6th Edition Guidelines</p>
+          </div>
+          <div class="text-right text-xs text-slate-500">
+            <p><span data-i18n="repLblGenerated">Generated:</span> <span id="rep-gen-date">--</span></p>
+            <p><span data-i18n="repLblLang">Language:</span> <span id="rep-lang-indicator">English</span></p>
+          </div>
+        </div>
+
+        <!-- Demographics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs border">
+          <div><span class="text-slate-500 block" data-i18n="repLblAthlete">Athlete Name:</span><strong id="rep-name">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblDob">Date of Birth:</span><strong id="rep-dob">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblSport">Sport/Team:</span><strong id="rep-sport">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblExaminer">Examiner:</span><strong id="rep-examiner">--</strong></div>
+        </div>
+
+        <!-- Summary Scores Table -->
+        <div>
+          <h3 class="font-bold text-sm mb-2 border-b pb-1 text-indigo-900" data-i18n="repTableTitle">Score Summary Breakdown</h3>
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="p-2 border" data-i18n="thModule">Assessment Module</th>
+                <th class="p-2 border" data-i18n="thScore">Score Result</th>
+                <th class="p-2 border" data-i18n="thMax">Max Possible</th>
+                <th class="p-2 border" data-i18n="thNote">Clinical Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowRf">Red Flags Triage</td>
+                <td class="p-2 border font-bold" id="rep-rf-status">Negative</td>
+                <td class="p-2 border">--</td>
+                <td class="p-2 border text-slate-500" id="rep-rf-note" data-i18n="noteRf">No emergency signs reported</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympNum">Total Symptom Number</td>
+                <td class="p-2 border font-bold" id="rep-symp-num">0</td>
+                <td class="p-2 border">22</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteSympNum">Symptom scale score</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympSev">Symptom Severity Score</td>
+                <td class="p-2 border font-bold" id="rep-symp-sev">0</td>
+                <td class="p-2 border">132</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteSympSev">Likert sum (0-6 scale)</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowCog">Cognitive Evaluation</td>
+                <td class="p-2 border font-bold" id="rep-cog-score">0</td>
+                <td class="p-2 border">50</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteCog">Orientation + Memory</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowMbess">mBESS Balance Errors</td>
+                <td class="p-2 border font-bold" id="rep-mbess-score">0</td>
+                <td class="p-2 border">30</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteMbess">Total error counts</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clinician Signature Box -->
+        <div class="pt-8 border-t text-xs grid grid-cols-2 gap-8">
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigClinician">Clinician Signature:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigDate">Date & License #:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- APP JAVASCRIPT LOGIC -->
+  <script>
+    // State
+    let currentLang = 'en';
+    let mbessErrors = { dl: 0, sl: 0, tan: 0 };
+
+    // Master Translation Dictionary
+    const translations = {
+      en: {
+        appTitle: "SCOAT6 Evaluator",
+        appSub: "Sport Concussion Office Assessment Tool (6th Ed.)",
+        navSymp: "Symptoms",
+        navSev: "Severity",
+        navCog: "Cognitive",
+        tabTriage: "1. Red Flags & Info",
+        tabSymptoms: "2. Symptoms (22)",
+        tabCognitive: "3. Cognitive Battery",
+        tabBalance: "4. mBESS Balance",
+        tabReport: "5. Clinical Report",
+        rfTitle: "🚨 Red Flags (Emergency Neurosurgical Triage)",
+        rfSub: "If any of these items are present, activate immediate emergency transport protocol.",
+        rf1: "Neck pain or tenderness",
+        rf2: "Double vision (Diplopia)",
+        rf3: "Weakness/tingling in arms or legs",
+        rf4: "Severe or worsening headache",
+        rf5: "Seizures or convulsions",
+        rf6: "Repeated vomiting",
+        profTitle: "Athlete & Incident Profile",
+        lblName: "Athlete Full Name",
+        lblDob: "Date of Birth",
+        lblSport: "Sport / Team",
+        lblEvalDate: "Assessment Date & Time",
+        lblExaminer: "Examiner Name",
+        phName: "John Doe",
+        phSport: "Football / FC United",
+        phExaminer: "Dr. Smith, ATC",
+        sympInstTitle: "Instructions for Player:",
+        btnToggleInst: "Hide / Show Instructions",
+        sympInstBody: "Rate how you currently feel compared to your normal baseline on a scale of 0 (None) to 6 (Severe).",
+        sympScaleTitle: "SCOAT6 22-Symptom Inventory",
+        lblTotalScore: "Total Score:",
+        lblSeverity: "Severity:",
+        orientTitle: "1. Orientation (/5)",
+        orientInstTitle: "Instructions:",
+        orientInstBody: "Ask the athlete the following questions without checking phones or calendars.",
+        qMonth: "What month is it?",
+        qDate: "What is today's date?",
+        qDay: "What day of the week is it?",
+        qYear: "What year is it?",
+        qTime: "What time is it right now? (within 1 hour)",
+        immMemTitle: "2. Immediate Memory (10 Words - 3 Trials /30)",
+        btnAudioEn: "Audio EN",
+        btnAudioKo: "Audio KO",
+        trial1Label: "Trial 1",
+        trial2Label: "Trial 2",
+        trial3Label: "Trial 3",
+        delMemTitle: "3. Delayed Recall (/10)",
+        delMemSub: "Do not read the words again. Ask athlete to recall as many words from earlier as possible.",
+        delMemScoreLbl: "Words Recalled:",
+        mbessTitle: "Modified Balance Error Scoring System (mBESS)",
+        mbessSub: "20-second firm surface stance tests with eyes closed and hands on hips. Maximum 10 errors per trial.",
+        stance1: "Double Leg Stance",
+        stance2: "Single Leg Stance (Non-Dominant)",
+        stance3: "Tandem Stance (Non-Dominant Back)",
+        mbessTotalLbl: "Total mBESS Errors:",
+        repToolbarTitle: "SCOAT6 Clinical Evaluation Summary",
+        repToolbarSub: "Export or print the finalized patient concussion assessment report.",
+        btnTxtEmr: "Copy EMR Text",
+        btnTxtPdf: "Download PDF Report",
+        btnTxtPrint: "Print Report",
+        repDocTitle: "SCOAT6 Clinical Evaluation Report",
+        repDocSub: "Sport Concussion Office Assessment Tool - 6th Edition Guidelines",
+        repLblGenerated: "Generated:",
+        repLblLang: "Language:",
+        repLblAthlete: "Athlete Name:",
+        repLblDob: "Date of Birth:",
+        repLblSport: "Sport/Team:",
+        repLblExaminer: "Examiner:",
+        repTableTitle: "Score Summary Breakdown",
+        thModule: "Assessment Module",
+        thScore: "Score Result",
+        thMax: "Max Possible",
+        thNote: "Clinical Note",
+        rowRf: "Red Flags Triage",
+        noteRf: "No emergency signs reported",
+        rowSympNum: "Total Symptom Number",
+        noteSympNum: "Symptom scale score",
+        rowSympSev: "Symptom Severity Score",
+        noteSympSev: "Likert sum (0-6 scale)",
+        rowCog: "Cognitive Evaluation",
+        noteCog: "Orientation + Memory",
+        rowMbess: "mBESS Balance Errors",
+        noteMbess: "Total error counts",
+        sigClinician: "Clinician Signature:",
+        sigDate: "Date & License #:"
+      },
+      ko: {
+        appTitle: "SCOAT6 진단 앱",
+        appSub: "스포츠 뇌진탕 클리닉 평가 도구 (제6판)",
+        navSymp: "증상 개수",
+        navSev: "심각도 점수",
+        navCog: "인지 기능",
+        tabTriage: "1. 경고 증상 및 정보",
+        tabSymptoms: "2. 증상 평가 (22항목)",
+        tabCognitive: "3. 인지 기능 검사",
+        tabBalance: "4. mBESS 균형 검사",
+        tabReport: "5. 임상 결과 보고서",
+        rfTitle: "🚨 응급 경고 증상 (긴급 신경외과 이송)",
+        rfSub: "다음 중 하나라도 해당하는 경우 즉시 응급 의료진을 호출하고 이송하십시오.",
+        rf1: "목 통증 또는 압통",
+        rf2: "복시 (물체가 두 개로 봄)",
+        rf3: "팔 또는 다리의 약화/저림",
+        rf4: "심하거나 악화되는 두통",
+        rf5: "발작 또는 경련",
+        rf6: "반복적인 구토",
+        profTitle: "선수 및 부상 정보",
+        lblName: "선수 성명",
+        lblDob: "생년월일",
+        lblSport: "종목 / 팀명",
+        lblEvalDate: "평가 일시",
+        lblExaminer: "검사자 성명",
+        phName: "홍길동",
+        phSport: "축구 / FC 유나이티드",
+        phExaminer: "김전문의",
+        sympInstTitle: "선수 안내 사항:",
+        btnToggleInst: "지침 숨기기 / 보기",
+        sympInstBody: "평소 건강 상태(100%)와 비교하여 현재 느끼는 증상 정도를 0점(증상 없음)에서 6점(심각함)까지 선택하세요.",
+        sympScaleTitle: "SCOAT6 22가지 증상 목록",
+        lblTotalScore: "총 증상 수:",
+        lblSeverity: "총 심각도:",
+        orientTitle: "1. 지남력 검사 (/5)",
+        orientInstTitle: "검사 지침:",
+        orientInstBody: "달력이나 시계, 휴대폰을 보지 않고 선수가 직접 답변하도록 질문하십시오.",
+        qMonth: "지금은 몇 월입니까?",
+        qDate: "오늘은 며칠입니까?",
+        qDay: "오늘은 무슨 요일입니까?",
+        qYear: "올해는 몇 년도입니까?",
+        qTime: "지금은 몇 시쯤 되었습니까? (1시간 이내 오차 허용)",
+        immMemTitle: "2. 즉각 기억력 검사 (10단어 - 3회 시행 /30)",
+        btnAudioEn: "영어 음성",
+        btnAudioKo: "한국어 음성",
+        trial1Label: "1회 차",
+        trial2Label: "2회 차",
+        trial3Label: "3회 차",
+        delMemTitle: "3. 지연 회상 검사 (/10)",
+        delMemSub: "단어를 다시 읽어주지 마십시오. 이전에 불러준 단어 중 기억나는 것을 모두 말하도록 하십시오.",
+        delMemScoreLbl: "기억해낸 단어 수:",
+        mbessTitle: "수정된 균형 오류 점수 시스템 (mBESS)",
+        mbessSub: "단단한 바닥에서 눈을 감고 양손을 골반에 얹은 채 20초간 유지합니다. (시행당 최대 10개 오류)",
+        stance1: "양발 모아 서기",
+        stance2: "비주족 한 발로 서기",
+        stance3: "일렬 서기 (비주족을 뒤로)",
+        mbessTotalLbl: "총 mBESS 오류 수:",
+        repToolbarTitle: "SCOAT6 임상 평가 요약",
+        repToolbarSub: "완성된 뇌진탕 평가 보고서를 출력하거나 저장하십시오.",
+        btnTxtEmr: "EMR 텍스트 복사",
+        btnTxtPdf: "PDF 보고서 다운로드",
+        btnTxtPrint: "보고서 인쇄",
+        repDocTitle: "SCOAT6 임상 평가 보고서",
+        repDocSub: "스포츠 뇌진탕 클리닉 평가 도구 - 제6판 가이드라인",
+        repLblGenerated: "발행일:",
+        repLblLang: "사용 언어:",
+        repLblAthlete: "선수 성명:",
+        repLblDob: "생년월일:",
+        repLblSport: "종목/팀명:",
+        repLblExaminer: "검사자:",
+        repTableTitle: "평가 항목별 점수 요약",
+        thModule: "평가 모듈",
+        thScore: "획득 점수",
+        thMax: "최대 점수",
+        thNote: "임상 소견",
+        rowRf: "응급 경고 증상",
+        noteRf: "응급 징후 없음",
+        rowSympNum: "총 증상 개수",
+        noteSympNum: "증상 호소 항목 수",
+        rowSympSev: "증상 심각도 점수",
+        noteSympSev: "Likert 합계 (0-6 점수)",
+        rowCog: "인지 기능 평가",
+        noteCog: "지남력 + 기억력",
+        rowMbess: "mBESS 균형 오류",
+        noteMbess: "총 자세 오류 횟수",
+        sigClinician: "검사자 서명:",
+        sigDate: "날짜 및 면허번호:"
+      }
+    };
+
+    const wordList = [
+      { en: 'Finger', ko: '손가락' },
+      { en: 'Penny', ko: '동전' },
+      { en: 'Blanket', ko: '담요' },
+      { en: 'Lemon', ko: '레몬' },
+      { en: 'Insect', ko: '곤충' },
+      { en: 'Candle', ko: '양초' },
+      { en: 'Paper', ko: '종이' },
+      { en: 'Sugar', ko: '설탕' },
+      { en: 'Sandwich', ko: '샌드위치' },
+      { en: 'Wagon', ko: '수레' }
+    ];
+
+    const symptomList = [
+      { id: 's1', en: 'Headache', ko: '두통' },
+      { id: 's2', en: 'Pressure in head', ko: '머리의 압박감' },
+      { id: 's3', en: 'Neck pain', ko: '목 통증' },
+      { id: 's4', en: 'Nausea or vomiting', ko: '메스꺼움 또는 구토' },
+      { id: 's5', en: 'Dizziness', ko: '어지럼증' },
+      { id: 's6', en: 'Blurred vision', ko: '시야 흐림' },
+      { id: 's7', en: 'Balance problems', ko: '균형 감각 문제' },
+      { id: 's8', en: 'Sensitivity to light', ko: '빛 민감성' },
+      { id: 's9', en: 'Sensitivity to noise', ko: '소리 민감성' },
+      { id: 's10', en: 'Feeling slowed down', ko: '둔해진 느낌' },
+      { id: 's11', en: 'Feeling in a fog', ko: '안개 속에 있는 듯 멍함' },
+      { id: 's12', en: 'Don\'t feel right', ko: '평소와 다른 이상한 느낌' },
+      { id: 's13', en: 'Difficulty concentrating', ko: '집중력 저하' },
+      { id: 's14', en: 'Difficulty remembering', ko: '기억력 저하' },
+      { id: 's15', en: 'Fatigue or low energy', ko: '피로감 / 기력 저하' },
+      { id: 's16', en: 'Confusion', ko: '혼란' },
+      { id: 's17', en: 'Drowsiness', ko: '졸림' },
+      { id: 's18', en: 'More emotional', ko: '감정 기복 심함' },
+      { id: 's19', en: 'Irritability', ko: '짜증 / 예민함' },
+      { id: 's20', en: 'Sadness', ko: '슬픔' },
+      { id: 's21', en: 'Nervous or anxious', ko: '초조함 / 불안' },
+      { id: 's22', en: 'Trouble falling asleep', ko: '수면 장애 / 입면 어려움' }
+    ];
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+      document.getElementById('input-eval-date').value = new Date().toISOString().slice(0, 16);
+    });
+
+    // Global Language Switcher
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      document.getElementById('lang-btn-txt').textContent = currentLang === 'en' ? '한국어 (Korean)' : 'English (영어)';
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+    }
+
+    function applyLanguage() {
+      const dict = translations[currentLang];
+      
+      // Update text content
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+
+      // Update input placeholders
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) {
+          el.placeholder = dict[key];
+        }
+      });
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700');
+      });
+      
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('bg-indigo-600', 'text-white');
+      document.getElementById(`tab-${tabId}`).classList.remove('bg-white', 'text-slate-700');
+      
+      if (tabId === 'report') updateReport();
+    }
+
+    // Render Symptoms Grid
+    function renderSymptoms() {
+      const container = document.getElementById('symptoms-grid');
+      container.innerHTML = symptomList.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-slate-50 rounded border gap-2">
+          <span class="text-xs font-medium text-slate-800">${idx + 1}. ${item[currentLang]}</span>
+          <div class="flex items-center space-x-1">
+            ${[0,1,2,3,4,5,6].map(num => `
+              <button onclick="setSymptomScore('${item.id}',${num})" 
+                id="btn-${item.id}-${num}" 
+                class="symp-btn-${item.id} w-7 h-7 text-xs rounded font-bold border transition${symptomScores[item.id] === num ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-indigo-50'}">
+                ${num}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let symptomScores = {};
+    function setSymptomScore(sympId, val) {
+      symptomScores[sympId] = val;
+      renderSymptoms();
+      calcSymptoms();
+    }
+
+    function calcSymptoms() {
+      const scores = Object.values(symptomScores);
+      const count = scores.filter(s => s > 0).length;
+      const severity = scores.reduce((a, b) => a + b, 0);
+
+      document.getElementById('symp-total-display').textContent = count;
+      document.getElementById('sev-total-display').textContent = severity;
+      document.getElementById('nav-score-symp').textContent = `${count}/22`;
+      document.getElementById('nav-score-sev').textContent = `${severity}/132`;
+    }
+
+    // Render Words
+    function renderWords() {
+      const container = document.getElementById('words-container');
+      container.innerHTML = wordList.map((w, idx) => `
+        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-2 rounded text-center text-xs font-semibold flex justify-between items-center">
+          <span>${idx + 1}. ${w[currentLang]}</span>
+          <button onclick="speakWord('${w[currentLang]}')" class="no-print text-xs hover:scale-110">🔊</button>
+        </div>
+      `).join('');
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+        synth.speak(utter);
+      }
+    }
+
+    function playPacedAudio(lang) {
+      if (!('speechSynthesis' in window)) return;
+      const synth = window.speechSynthesis;
+      synth.cancel();
+
+      wordList.forEach((w) => {
+        const utter = new SpeechSynthesisUtterance(w[lang]);
+        utter.lang = lang === 'ko' ? 'ko-KR' : 'en-US';
+        utter.rate = 0.9;
+        synth.speak(utter);
+      });
+    }
+
+    // Cognitive Calculations
+    function calcCog() {
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+
+      let total = orient + t1 + t2 + t3 + delayed;
+      document.getElementById('nav-score-cog').textContent = `${total}/50`;
+    }
+
+    // mBESS Balance Controls
+    function adjErr(type, delta) {
+      mbessErrors[type] = Math.max(0, Math.min(10, mbessErrors[type] + delta));
+      document.getElementById(`err-${type}`).textContent = mbessErrors[type];
+      
+      let total = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('mbess-total-display').textContent = `${total} / 30`;
+    }
+
+    // Toggle Instruction Visibility
+    function toggleInstructions(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+    }
+
+    // Update Report Tab Content
+    function updateReport() {
+      document.getElementById('rep-gen-date').textContent = new Date().toLocaleDateString();
+      document.getElementById('rep-lang-indicator').textContent = currentLang === 'en' ? 'English' : '한국어';
+      
+      document.getElementById('rep-name').textContent = document.getElementById('input-name').value || '--';
+      document.getElementById('rep-dob').textContent = document.getElementById('input-dob').value || '--';
+      document.getElementById('rep-sport').textContent = document.getElementById('input-sport').value || '--';
+      document.getElementById('rep-examiner').textContent = document.getElementById('input-examiner').value || '--';
+
+      // Scores
+      const scores = Object.values(symptomScores);
+      document.getElementById('rep-symp-num').textContent = scores.filter(s => s > 0).length;
+      document.getElementById('rep-symp-sev').textContent = scores.reduce((a, b) => a + b, 0);
+
+      const rfChecked = document.querySelectorAll('.rf-check:checked').length;
+      const isKo = currentLang === 'ko';
+      document.getElementById('rep-rf-status').textContent = rfChecked > 0 ? (isKo ? '양성 (긴급 경고)' : 'POSITIVE (CRITICAL)') : (isKo ? '음성 (정상)' : 'Negative');
+      document.getElementById('rep-rf-status').className = rfChecked > 0 ? 'p-2 border font-bold text-red-600' : 'p-2 border font-bold text-emerald-600';
+
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      document.getElementById('rep-cog-score').textContent = orient + t1 + t2 + t3 + delayed;
+
+      let mbessTotal = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('rep-mbess-score').textContent = mbessTotal;
+    }
+
+    // PDF Download Function
+    function downloadPDF() {
+      updateReport();
+      const element = document.getElementById('pdf-report-content');
+      const name = document.getElementById('input-name').value.trim() || 'Athlete';
+      const date = new Date().toISOString().slice(0, 10);
+      
+      const opt = {
+        margin:       0.5,
+        filename:     `SCOAT6_Report_${name}_${date}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Copy Text to EMR
+    function copyEMRText() {
+      updateReport();
+      const name = document.getElementById('input-name').value || 'N/A';
+      const dob = document.getElementById('input-dob').value || 'N/A';
+      const evalDate = document.getElementById('input-eval-date').value || 'N/A';
+      const sympNum = document.getElementById('rep-symp-num').textContent;
+      const sympSev = document.getElementById('rep-symp-sev').textContent;
+      const cog = document.getElementById('rep-cog-score').textContent;
+      const mbess = document.getElementById('rep-mbess-score').textContent;
+
+      const emrText = `=== SCOAT6 CLINICAL EVALUATION REPORT (${currentLang.toUpperCase()}) ===\nAthlete: ${name} (DOB: ${dob})\nAssessment Date: ${evalDate}\nRed Flags: ${document.getElementById('rep-rf-status').textContent}\nTotal Symptoms: ${sympNum}/22\nSymptom Severity: ${sympSev}/132\nCognitive Score: ${cog}/50\nmBESS Balance Errors: ${mbess}/30\n==========================================`;
+
+      navigator.clipboard.writeText(emrText).then(() => {
+        alert(currentLang === 'ko' ? 'EMR 요약 내용이 클립보드에 복사되었습니다!' : 'EMR summary copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
