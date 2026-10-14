@@ -1,1077 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCOAT6 Concussion Office Assessment Tool</title>
-  <!-- Tailwind CSS CDN -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCOAT6 Dual-Language Concussion Assessment Tool</title>
+
+  <!-- Tailwind CSS & html2pdf CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-              800: '#166534',
-              900: '#14532d',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
-    /* Custom scrollbar and subtle transitions */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     @media print {
+      body { background-color: #ffffff !important; color: #000000 !important; }
       .no-print { display: none !important; }
       .print-only { display: block !important; }
-      body { background: white !important; color: black !important; }
+      .page-break { page-break-before: always; }
+      .card-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
     }
+    .print-only { display: none; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+<body class="bg-slate-100 text-slate-900 font-sans min-h-screen">
 
-  <!-- Top Header Navigation -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- TOP HEADER / NAVBAR -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md no-print">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/20">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-        </div>
+        <span class="text-2xl">🧠</span>
         <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-lg font-bold text-slate-900 leading-tight">SCOAT 6</h1>
-            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">Clinical Protocol</span>
-          </div>
-          <p class="text-xs text-slate-500" data-en="Sport Concussion Office Assessment Tool" data-ko="스포츠 뇌진탕 진료실 평가 도구">Sport Concussion Office Assessment Tool</p>
+          <h1 class="font-bold text-lg leading-tight">SCOAT6 Evaluator</h1>
+          <p class="text-xs text-slate-400" id="sub-header-label">Sport Concussion Office Assessment Tool (6th Ed.)</p>
         </div>
       </div>
 
-      <!-- Center Live Score Dashboard Pills (Desktop) -->
-      <div class="hidden lg:flex items-center space-x-4 text-xs font-medium">
-        <div class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center space-x-2">
-          <span class="text-slate-500" data-en="Symptoms:" data-ko="증상 수:">Symptoms:</span>
-          <span id="pill-symptom-count" class="font-bold text-slate-900">0/22</span>
-          <span class="text-slate-300">|</span>
-          <span class="text-slate-500" data-en="Severity:" data-ko="중증도:">Severity:</span>
-          <span id="pill-symptom-score" class="font-bold text-emerald-600">0/132</span>
+      <!-- Live Score Indicators -->
+      <div class="flex items-center space-x-2 text-xs">
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" id="nav-lbl-symp">Symptoms</span>
+          <span id="nav-score-symp" class="font-bold text-amber-400">0/22</span>
         </div>
-        <div class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center space-x-2">
-          <span class="text-slate-500" data-en="Cognitive:" data-ko="인지 점수:">Cognitive:</span>
-          <span id="pill-cog-score" class="font-bold text-indigo-600">0/45</span>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" id="nav-lbl-sev">Severity</span>
+          <span id="nav-score-sev" class="font-bold text-amber-400">0/132</span>
+        </div>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" id="nav-lbl-cog">Cognitive</span>
+          <span id="nav-score-cog" class="font-bold text-emerald-400">0/50</span>
         </div>
       </div>
 
-      <!-- Dual Language Switcher & Controls -->
-      <div class="flex items-center space-x-3">
-        <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold">
-          <button id="lang-en" onclick="setLanguage('en')" class="px-3 py-1 rounded-lg transition-all shadow-sm bg-white text-slate-900">English</button>
-          <button id="lang-ko" onclick="setLanguage('ko')" class="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition-all">한국어</button>
-        </div>
-
-        <button onclick="resetAllAssessments()" title="Reset assessment" class="no-print p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition border border-transparent hover:border-rose-100">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
-      </div>
+      <!-- Language Toggle -->
+      <button onclick="toggleLanguage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold text-xs transition shadow flex items-center gap-1">
+        <span>🌐</span> <span id="lang-btn-txt">한국어 (Korean)</span>
+      </button>
     </div>
   </header>
 
-  <!-- Tab navigation bar -->
-  <nav class="bg-white border-b border-slate-200 shadow-xs no-print sticky top-16 z-30 overflow-x-auto">
-    <div class="max-w-7xl mx-auto px-4 flex space-x-2 py-2">
-      <button onclick="switchTab('tab-triage')" id="nav-tab-triage" class="nav-tab active px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200">
-        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-        <span data-en="1. Red Flags & Info" data-ko="1. 응급경고 & 선수정보">1. Red Flags & Info</span>
-      </button>
-      <button onclick="switchTab('tab-symptoms')" id="nav-tab-symptoms" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-        <span data-en="2. Symptom Evaluation (22)" data-ko="2. 증상 평가 (22항목)">2. Symptom Evaluation (22)</span>
-      </button>
-      <button onclick="switchTab('tab-cognitive')" id="nav-tab-cognitive" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-        <span data-en="3. Cognitive Screening" data-ko="3. 인지 기능 검사">3. Cognitive Screening</span>
-      </button>
-      <button onclick="switchTab('tab-balance')" id="nav-tab-balance" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-        <span data-en="4. Balance (mBESS)" data-ko="4. 균형 검사 (mBESS)">4. Balance (mBESS)</span>
-      </button>
-      <button onclick="switchTab('tab-summary')" id="nav-tab-summary" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-        <span data-en="5. SCOAT6 Clinical Summary" data-ko="5. 임상 종합 보고서">5. SCOAT6 Clinical Summary</span>
-      </button>
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto p-4 md:p-6">
+
+    <!-- NAVIGATION TABS -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-3 no-print">
+      <button onclick="switchTab('triage')" id="tab-triage" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-indigo-600 text-white shadow">1. Red Flags & Info</button>
+      <button onclick="switchTab('symptoms')" id="tab-symptoms" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200">2. Symptoms (22)</button>
+      <button onclick="switchTab('cognitive')" id="tab-cognitive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200">3. Cognitive Battery</button>
+      <button onclick="switchTab('balance')" id="tab-balance" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200">4. mBESS Balance</button>
+      <button onclick="switchTab('report')" id="tab-report" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200">5. Clinical Report</button>
     </div>
-  </nav>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- ========================================== -->
-    <!-- TAB 1: RED FLAGS & ATHLETE BACKGROUND INFO -->
-    <!-- ========================================== -->
-    <section id="tab-triage" class="tab-pane space-y-6">
-      <!-- Critical Red Flags Warning Banner -->
-      <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-5 shadow-sm">
-        <div class="flex items-start space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-base font-bold text-rose-900" data-en="EMERGENCY RED FLAGS (Immediate Transfer to Emergency Facility)" data-ko="응급 경고 신호 (Red Flags - 즉시 응급의료기관 이송 필요)">
-              EMERGENCY RED FLAGS (Immediate Transfer to Emergency Facility)
-            </h3>
-            <p class="text-xs text-rose-700 mt-1" data-en="If ANY of the following are observed, cease the office assessment immediately and initiate emergency medical activation." data-ko="다음 증상 중 하나라도 관찰되면 즉시 평가를 중단하고 119 또는 응급 의료 시스템을 가동하십시오.">
-              If ANY of the following are observed, cease the office assessment immediately and initiate emergency medical activation.
-            </p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 mt-4">
-              <!-- Red Flag Checkboxes -->
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Neck pain or tenderness" data-ko="목 통증 또는 압통">Neck pain or tenderness</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Double vision (Diplopia)" data-ko="복시 (물체가 겹쳐 보임)">Double vision (Diplopia)</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Weakness, tingling, burning in arms/legs" data-ko="팔다리 위약감, 저림 또는 작열감">Weakness, tingling, burning in arms/legs</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Severe or increasing headache" data-ko="심하거나 악화되는 두통">Severe or increasing headache</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Seizure or convulsion" data-ko="경련 또는 발작">Seizure or convulsion</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Loss of consciousness / Deteriorating state" data-ko="의식 상실 또는 의식 저하">Loss of consciousness / Deteriorating state</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Deteriorating conscious state" data-ko="의식 수준의 점진적 악화">Deteriorating conscious state</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Repeated vomiting" data-ko="반복적인 구토">Repeated vomiting</span>
-              </label>
-              <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-200 cursor-pointer hover:bg-white transition">
-                <input type="checkbox" class="red-flag-checkbox text-rose-600 rounded focus:ring-rose-500 h-4 w-4" onchange="checkRedFlags()">
-                <span class="text-xs font-semibold text-rose-950" data-en="Increasingly restless, agitated or combative" data-ko="극심한 안절부절못함, 흥분 또는 공격성">Increasingly restless, agitated or combative</span>
-              </label>
-            </div>
-
-            <div id="red-flag-alert" class="hidden mt-3 p-3 bg-rose-600 text-white font-bold rounded-lg text-xs flex items-center justify-between animate-pulse">
-              <span data-en="WARNING: RED FLAG DETECTED! DO NOT CONTINUE SCOAT6. CALL EMERGENCY SERVICES IMMEDIATELY." data-ko="경고: 위험 징후가 감지되었습니다! SCOAT6 검사를 중단하고 즉시 응급의료진에 연락하십시오.">
-                WARNING: RED FLAG DETECTED! DO NOT CONTINUE SCOAT6. CALL EMERGENCY SERVICES IMMEDIATELY.
-              </span>
-            </div>
-          </div>
+    <!-- TAB 1: TRIAGE & RED FLAGS -->
+    <section id="sec-triage" class="tab-content space-y-6">
+      <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg shadow-sm card-box">
+        <h2 class="text-red-800 font-bold text-lg flex items-center gap-2" id="rf-title">
+          🚨 Red Flags (Emergency Neurosurgical Triage)
+        </h2>
+        <p class="text-sm text-red-700 mt-1" id="rf-sub">If any of these items are present, activate immediate emergency transport protocol.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-1">Neck pain or tenderness</span>
+          </label>
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-2">Double vision (Diplopia)</span>
+          </label>
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-3">Weakness/tingling in arms or legs</span>
+          </label>
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-4">Severe or worsening headache</span>
+          </label>
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-5">Seizures or convulsions</span>
+          </label>
+          <label class="flex items-center space-x-2 bg-white p-2.5 rounded border border-red-200 text-xs font-medium text-slate-800">
+            <input type="checkbox" class="rf-check w-4 h-4 text-red-600 rounded"> <span id="rf-6">Repeated vomiting</span>
+          </label>
         </div>
       </div>
 
-      <!-- Athlete Demographics & Concussion History Form -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4 flex items-center space-x-2">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span data-en="Athlete Demographics & Clinical History" data-ko="선수 인적사항 및 부상 임상 이력">Athlete Demographics & Clinical History</span>
-        </h3>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+      <!-- Athlete Profile -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-4 border-b pb-2" id="prof-title">Athlete & Incident Profile</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Athlete Full Name" data-ko="선수 성명">Athlete Full Name</label>
-            <input type="text" id="athlete-name" placeholder="e.g. Min-jae Kim" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-medium text-slate-600 text-xs mb-1" id="lbl-name">Athlete Full Name</label>
+            <input type="text" id="input-name" class="w-full p-2 border rounded-lg" placeholder="John Doe">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Date of Birth / Age" data-ko="생년월일 / 나이">Date of Birth / Age</label>
-            <input type="text" id="athlete-dob" placeholder="YYYY-MM-DD (Age)" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-medium text-slate-600 text-xs mb-1" id="lbl-dob">Date of Birth</label>
+            <input type="date" id="input-dob" class="w-full p-2 border rounded-lg">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Sport & Position" data-ko="종목 및 포지션">Sport & Position</label>
-            <input type="text" id="athlete-sport" placeholder="e.g. Football / Defender" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-medium text-slate-600 text-xs mb-1" id="lbl-sport">Sport / Team</label>
+            <input type="text" id="input-sport" class="w-full p-2 border rounded-lg" placeholder="Football / FC United">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Date / Time of Injury" data-ko="부상 일시">Date / Time of Injury</label>
-            <input type="datetime-local" id="athlete-injury-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Evaluator Name / Role" data-ko="평가자 성명 / 직책">Evaluator Name / Role</label>
-            <input type="text" id="evaluator-name" placeholder="Team Physician / ATC" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-medium text-slate-600 text-xs mb-1" id="lbl-eval-date">Assessment Date & Time</label>
+            <input type="datetime-local" id="input-eval-date" class="w-full p-2 border rounded-lg">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Assessment Date" data-ko="평가 일자">Assessment Date</label>
-            <input type="date" id="eval-date" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Dominant Hand" data-ko="우세 손 (손잡이)">Dominant Hand</label>
-            <select id="athlete-hand" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="Right" data-en="Right" data-ko="오른손잡이">Right</option>
-              <option value="Left" data-en="Left" data-ko="왼손잡이">Left</option>
-              <option value="Ambidextrous" data-en="Ambidextrous" data-ko="양손잡이">Ambidextrous</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1" data-en="Previous Concussions Count" data-ko="이전 뇌진탕 병력 (횟수)">Previous Concussions Count</label>
-            <input type="number" min="0" id="past-concussions" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-medium text-slate-600 text-xs mb-1" id="lbl-examiner">Examiner Name</label>
+            <input type="text" id="input-examiner" class="w-full p-2 border rounded-lg" placeholder="Dr. Smith, ATC">
           </div>
         </div>
-      </div>
-
-      <div class="flex justify-end">
-        <button onclick="switchTab('tab-symptoms')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition flex items-center space-x-2">
-          <span data-en="Next: Symptom Evaluation" data-ko="다음: 증상 평가 진행">Next: Symptom Evaluation</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
       </div>
     </section>
 
-    <!-- ========================================== -->
-    <!-- TAB 2: ATHLETE SYMPTOM EVALUATION (0-6)    -->
-    <!-- ========================================== -->
-    <section id="tab-symptoms" class="tab-pane hidden space-y-6">
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-          <div>
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span data-en="SCOAT6 Athlete Symptom Evaluation" data-ko="SCOAT6 선수 증상 자가 평가">SCOAT6 Athlete Symptom Evaluation</span>
-            </h3>
-            <p class="text-xs text-slate-500 mt-1" data-en="Rate how the player feels today. 0 = None, 1-2 = Mild, 3-4 = Moderate, 5-6 = Severe." data-ko="오늘 현재 느끼는 증상의 정도를 선택하십시오. 0 = 없음, 1-2 = 경미, 3-4 = 보통, 5-6 = 심함.">
-              Rate how the player feels today. 0 = None, 1-2 = Mild, 3-4 = Moderate, 5-6 = Severe.
-            </p>
-          </div>
-          <!-- Live Symptom Summary Box -->
-          <div class="flex items-center space-x-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2">
-            <div>
-              <p class="text-[11px] text-emerald-800 font-semibold" data-en="Total Symptoms" data-ko="증상 개수">Total Symptoms</p>
-              <p class="text-xl font-extrabold text-emerald-900"><span id="symp-count-display">0</span> <span class="text-xs font-normal text-emerald-700">/ 22</span></p>
-            </div>
-            <div class="w-px h-8 bg-emerald-200"></div>
-            <div>
-              <p class="text-[11px] text-emerald-800 font-semibold" data-en="Severity Score" data-ko="중증도 총점">Severity Score</p>
-              <p class="text-xl font-extrabold text-emerald-900"><span id="symp-score-display">0</span> <span class="text-xs font-normal text-emerald-700">/ 132</span></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Player Instruction Card -->
-        <div class="mt-4 bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 text-xs">
-          <div class="flex items-start space-x-2.5">
-            <span class="text-emerald-700 text-base">📢</span>
-            <div class="flex-1">
-              <h4 class="font-bold text-emerald-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-              <p class="text-emerald-800 italic leading-relaxed" data-en="&ldquo;Please rate how you feel right now at this moment compared to how you feel when 100% healthy. A score of 0 means you have no symptoms, 1 to 2 is mild, 3 to 4 is moderate, and 5 to 6 is severe. Please answer each question honestly.&rdquo;" data-ko="&ldquo;평소 건강한 상태(100%)와 비교하여 지금 이 순간 느끼는 증상의 정도를 평가해 주십시오. 0점은 증상 없음, 1-2점은 경미함, 3-4점은 보통, 5-6점은 심함을 의미합니다. 각 질문에 솔직하게 답해 주시기 바랍니다.&rdquo;">
-                &ldquo;Please rate how you feel right now at this moment compared to how you feel when 100% healthy. A score of 0 means you have no symptoms, 1 to 2 is mild, 3 to 4 is moderate, and 5 to 6 is severe. Please answer each question honestly.&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reveal / Hide Button -->
-        <div class="mt-4 flex items-center justify-between">
-          <button type="button" onclick="toggleTestVisibility('symptoms-content-panel', this)" data-target="symptoms-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition active:scale-95">
-            <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            <span class="btn-label" data-en="Reveal Symptom Test" data-ko="증상 평가 항목 열기">Reveal Symptom Test</span>
+    <!-- TAB 2: SYMPTOMS SCALE -->
+    <section id="sec-symptoms" class="tab-content hidden space-y-4">
+      <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 card-box">
+        <div class="flex justify-between items-center mb-2">
+          <strong class="text-sm font-semibold" id="symp-inst-title">Instructions for Player:</strong>
+          <button onclick="toggleInstructions('symp-inst-body')" class="no-print bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-medium">
+            👁️ <span class="inst-toggle-label">Hide / Show Instructions</span>
           </button>
-          <span class="text-[11px] text-slate-400 italic" data-en="Read instructions to player before revealing checklist" data-ko="검사표를 열기 전 선수에게 안내 사항을 먼저 읽어주세요">Read instructions to player before revealing checklist</span>
         </div>
-
-        <!-- Collapsible Symptoms Checklist Panel (Hidden by default) -->
-        <div id="symptoms-content-panel" class="hidden mt-6 transition-all duration-300">
-          <!-- 22 Symptoms List (SCOAT6 official symptom checklist) -->
-          <div id="symptoms-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Dynamically populated via JS -->
-          </div>
-
-          <!-- Exertion exacerbation question -->
-          <div class="mt-8 pt-6 border-t border-slate-100 bg-slate-50 p-4 rounded-xl">
-            <p class="text-xs font-semibold text-slate-800 mb-2" data-en="Do symptoms get worse with physical activity?" data-ko="신체 활동 시 증상이 더 악화됩니까?">
-              Do symptoms get worse with physical activity?
-            </p>
-            <div class="flex space-x-3 text-xs">
-              <label class="flex items-center space-x-1.5 cursor-pointer">
-                <input type="radio" name="phys-worse" value="No" checked class="text-emerald-600 focus:ring-emerald-500">
-                <span data-en="No" data-ko="아니오">No</span>
-              </label>
-              <label class="flex items-center space-x-1.5 cursor-pointer">
-                <input type="radio" name="phys-worse" value="Yes" class="text-emerald-600 focus:ring-emerald-500">
-                <span data-en="Yes" data-ko="예">Yes</span>
-              </label>
-            </div>
-
-            <p class="text-xs font-semibold text-slate-800 mt-4 mb-2" data-en="Do symptoms get worse with mental / cognitive activity?" data-ko="정신적 / 인지적 활동(독서, 화면 보기 등) 시 증상이 악화됩니까?">
-              Do symptoms get worse with mental / cognitive activity?
-            </p>
-            <div class="flex space-x-3 text-xs">
-              <label class="flex items-center space-x-1.5 cursor-pointer">
-                <input type="radio" name="cog-worse" value="No" checked class="text-emerald-600 focus:ring-emerald-500">
-                <span data-en="No" data-ko="아니오">No</span>
-              </label>
-              <label class="flex items-center space-x-1.5 cursor-pointer">
-                <input type="radio" name="cog-worse" value="Yes" class="text-emerald-600 focus:ring-emerald-500">
-                <span data-en="Yes" data-ko="예">Yes</span>
-              </label>
-            </div>
-          </div>
-        </div>
+        <p id="symp-inst-body">
+          Rate how you currently feel compared to your normal baseline on a scale of 0 (None) to 6 (Severe).
+        </p>
       </div>
 
-      <div class="flex justify-between items-center">
-        <button onclick="switchTab('tab-triage')" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition">
-          <span data-en="Back: Red Flags" data-ko="이전: 응급경고">Back: Red Flags</span>
-        </button>
-        <button onclick="switchTab('tab-cognitive')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition flex items-center space-x-2">
-          <span data-en="Next: Cognitive Screening" data-ko="다음: 인지 기능 검사">Next: Cognitive Screening</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+          <h3 class="font-bold text-slate-800" id="symp-scale-title">SCOAT6 22-Symptom Inventory</h3>
+          <div class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-700">
+            Total Score: <span id="symp-total-display" class="text-indigo-600 font-bold">0</span> / 22 | 
+            Severity: <span id="sev-total-display" class="text-indigo-600 font-bold">0</span> / 132
+          </div>
+        </div>
+
+        <div id="symptoms-grid" class="space-y-3">
+          <!-- Dynamically populated via JS -->
+        </div>
       </div>
     </section>
 
-    <!-- ========================================== -->
-    <!-- TAB 3: COGNITIVE SCREENING (SCOAT6)        -->
-    <!-- ========================================== -->
-    <section id="tab-cognitive" class="tab-pane hidden space-y-6">
+    <!-- TAB 3: COGNITIVE BATTERY -->
+    <section id="sec-cognitive" class="tab-content hidden space-y-6">
       
-      <!-- Part 1: Orientation (5 questions) -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-            <span data-en="Orientation Assessment (5 points)" data-ko="지남력 평가 (총 5점)">Orientation Assessment (5 points)</span>
-          </h3>
-          <span class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200">
-            <span data-en="Score:" data-ko="점수:">Score:</span> <span id="orientation-score-badge">5</span>/5
-          </span>
-        </div>
-
-        <!-- Orientation Player Instructions -->
-        <div class="mt-4 bg-blue-50/70 border border-blue-200 rounded-xl p-4 text-xs">
-          <div class="flex items-start space-x-2.5">
-            <span class="text-blue-700 text-base">📢</span>
-            <div class="flex-1">
-              <h4 class="font-bold text-blue-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-              <p class="text-blue-800 italic leading-relaxed" data-en="&ldquo;I am going to ask you a few questions about where we are and what the date is. Please answer directly to the best of your ability without looking at a phone, watch, or calendar.&rdquo;" data-ko="&ldquo;지금 날짜와 시간에 대한 몇 가지 질문을 드리겠습니다. 휴대폰, 시계 또는 달력을 보지 마시고 아는 대로 답변해 주시기 바랍니다.&rdquo;">
-                &ldquo;I am going to ask you a few questions about where we are and what the date is. Please answer directly to the best of your ability without looking at a phone, watch, or calendar.&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reveal / Hide Button -->
-        <div class="mt-4 flex items-center justify-between">
-          <button type="button" onclick="toggleTestVisibility('orientation-content-panel', this)" data-target="orientation-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition active:scale-95">
-            <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            <span class="btn-label" data-en="Reveal Orientation Questions" data-ko="지남력 질문 열기">Reveal Orientation Questions</span>
-          </button>
-          <span class="text-[11px] text-slate-400 italic" data-en="Read instructions to player before revealing questions" data-ko="질문을 열기 전 선수에게 안내 사항을 먼저 읽어주세요">Read instructions to player before revealing questions</span>
-        </div>
-
-        <div id="orientation-content-panel" class="hidden mt-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <p class="font-medium text-slate-800 mb-2" data-en="What month is it?" data-ko="지금이 몇 월입니까?">What month is it?</p>
-              <div class="flex space-x-2">
-                <button onclick="setOrientation(0, 0)" id="orient-0-0" class="flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold">0</button>
-                <button onclick="setOrientation(0, 1)" id="orient-0-1" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">1</button>
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <p class="font-medium text-slate-800 mb-2" data-en="What is today's date?" data-ko="오늘이 며칠입니까?">What is today's date?</p>
-              <div class="flex space-x-2">
-                <button onclick="setOrientation(1, 0)" id="orient-1-0" class="flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold">0</button>
-                <button onclick="setOrientation(1, 1)" id="orient-1-1" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">1</button>
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <p class="font-medium text-slate-800 mb-2" data-en="What day of week?" data-ko="무슨 요일입니까?">What day of week?</p>
-              <div class="flex space-x-2">
-                <button onclick="setOrientation(2, 0)" id="orient-2-0" class="flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold">0</button>
-                <button onclick="setOrientation(2, 1)" id="orient-2-1" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">1</button>
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <p class="font-medium text-slate-800 mb-2" data-en="What year is it?" data-ko="올해가 몇 년도입니까?">What year is it?</p>
-              <div class="flex space-x-2">
-                <button onclick="setOrientation(3, 0)" id="orient-3-0" class="flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold">0</button>
-                <button onclick="setOrientation(3, 1)" id="orient-3-1" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">1</button>
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <p class="font-medium text-slate-800 mb-2" data-en="Time (within 1 hour)?" data-ko="지금 몇 시쯤입니까? (1시간 오차)">Time (within 1 hour)?</p>
-              <div class="flex space-x-2">
-                <button onclick="setOrientation(4, 0)" id="orient-4-0" class="flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold">0</button>
-                <button onclick="setOrientation(4, 1)" id="orient-4-1" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">1</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Part 2: Immediate Memory (10-word list, 3 trials = /30) -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
-          <div>
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-              <span data-en="Immediate Memory (10 Words x 3 Trials = 30 points)" data-ko="즉각 기억력 검사 (10단어 x 3회 시행 = 총 30점)">Immediate Memory (10 Words x 3 Trials = 30 points)</span>
-            </h3>
-            <p class="text-xs text-slate-500 mt-0.5" data-en="Read words at 1 word/sec. Test 3 trials regardless of trial 1 score. Tap word pills to mark as recalled." data-ko="1초에 1단어 속도로 읽어줍니다. 1회차 점수에 관계없이 총 3회 시행합니다. 회상한 단어를 클릭하세요.">
-              Read words at 1 word/sec. Test 3 trials regardless of trial 1 score. Tap word pills to mark as recalled.
-            </p>
-          </div>
-          <!-- Word List Selector -->
-          <div class="flex items-center space-x-2 text-xs">
-            <label class="text-slate-600 font-semibold" data-en="List:" data-ko="단어 목록:">List:</label>
-            <select id="word-list-selector" onchange="changeWordList(this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700">
-              <option value="A">List A (Finger, Penny, Blanket...)</option>
-              <option value="B">List B (Candle, Paper, Sugar...)</option>
-              <option value="C">List C (Baby, Monkey, Perfume...)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Immediate Memory Player Instructions -->
-        <div class="mt-4 bg-indigo-50/70 border border-indigo-200 rounded-xl p-4 text-xs">
-          <div class="flex items-start space-x-2.5">
-            <span class="text-indigo-700 text-base">📢</span>
-            <div class="flex-1">
-              <h4 class="font-bold text-indigo-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-              <p class="text-indigo-800 italic leading-relaxed" data-en="&ldquo;I am going to test your memory. I will read a list of 10 words. Listen carefully. When I finish, repeat back as many words as you can remember in any order. Even if you said the word in a previous trial, repeat all the words you remember every time.&rdquo;" data-ko="&ldquo;지금부터 기억력 검사를 진행하겠습니다. 10개의 단어를 읽어드릴 테니 주의 깊게 들어주세요. 제가 다 읽은 후 기억나는 단어를 순서에 상관없이 말씀해 주시면 됩니다. 이전 회차에서 말했던 단어도 매 회차마다 기억나는 대로 모두 다시 말씀하셔야 합니다.&rdquo;">
-                &ldquo;I am going to test your memory. I will read a list of 10 words. Listen carefully. When I finish, repeat back as many words as you can remember in any order. Even if you said the word in a previous trial, repeat all the words you remember every time.&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reveal / Hide Button -->
-        <div class="mt-4 flex items-center justify-between">
-          <button type="button" onclick="toggleTestVisibility('immediate-memory-content-panel', this)" data-target="immediate-memory-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition active:scale-95">
-            <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            <span class="btn-label" data-en="Reveal Word Lists & Audio" data-ko="단어 목록 및 음성 검사 열기">Reveal Word Lists & Audio</span>
-          </button>
-          <span class="text-[11px] text-slate-400 italic" data-en="Keep words hidden from athlete's view while reading" data-ko="단어를 읽어주는 동안 선수가 화면을 보지 않도록 주의하세요">Keep words hidden from athlete's view while reading</span>
-        </div>
-
-        <div id="immediate-memory-content-panel" class="hidden mt-4">
-          <!-- Audio Guidance & Dual-Language Narration Bar -->
-          <div class="my-3 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl flex flex-wrap items-center justify-between gap-2.5 text-xs">
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-indigo-900 flex items-center space-x-1">
-                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                <span data-en="Standard Pace Audio (1 word/sec):" data-ko="표준 음성 안내 (1초당 1단어):">Standard Pace Audio (1 word/sec):</span>
-              </span>
-              <span id="audio-status-indicator" class="hidden text-[11px] font-semibold text-indigo-700 animate-pulse bg-white px-2 py-0.5 rounded-full border border-indigo-200">
-                Playing...
-              </span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <button type="button" onclick="playPacedWordList('en')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100/60 text-indigo-800 border border-indigo-200 font-semibold shadow-2xs flex items-center space-x-1 transition active:scale-95">
-                <span>🔊</span>
-                <span>English Audio</span>
-              </button>
-              <button type="button" onclick="playPacedWordList('ko')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100/60 text-indigo-800 border border-indigo-200 font-semibold shadow-2xs flex items-center space-x-1 transition active:scale-95">
-                <span>🔊</span>
-                <span>한국어 음성</span>
-              </button>
-              <button type="button" id="btn-stop-audio" onclick="stopAudioPlayback()" class="hidden px-2 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-semibold transition text-[11px]">
-                ⏹ Stop
-              </button>
-            </div>
-          </div>
-
-          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Trial 1 -->
-            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-slate-800" data-en="Trial 1" data-ko="1회차 시행">Trial 1</span>
-                  <span id="trial-score-1" class="text-xs font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md">0 / 10</span>
-                </div>
-                <!-- Voice Annotation Control -->
-                <div class="mb-3 flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 text-[11px]">
-                  <button type="button" onclick="toggleVoiceAnnotation('trial1')" id="btn-record-trial1" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center space-x-1">
-                    <span>🎙️</span>
-                    <span id="label-record-trial1" data-en="Record Athlete" data-ko="음성 녹음">Record Athlete</span>
-                  </button>
-                  <div id="audio-player-trial1" class="hidden"></div>
-                </div>
-                <div id="trial-words-1" class="space-y-1.5"></div>
-              </div>
-            </div>
-
-            <!-- Trial 2 -->
-            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-slate-800" data-en="Trial 2" data-ko="2회차 시행">Trial 2</span>
-                  <span id="trial-score-2" class="text-xs font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md">0 / 10</span>
-                </div>
-                <div class="mb-3 flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 text-[11px]">
-                  <button type="button" onclick="toggleVoiceAnnotation('trial2')" id="btn-record-trial2" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center space-x-1">
-                    <span>🎙️</span>
-                    <span id="label-record-trial2" data-en="Record Athlete" data-ko="음성 녹음">Record Athlete</span>
-                  </button>
-                  <div id="audio-player-trial2" class="hidden"></div>
-                </div>
-                <div id="trial-words-2" class="space-y-1.5"></div>
-              </div>
-            </div>
-
-            <!-- Trial 3 -->
-            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-slate-800" data-en="Trial 3" data-ko="3회차 시행">Trial 3</span>
-                  <span id="trial-score-3" class="text-xs font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md">0 / 10</span>
-                </div>
-                <div class="mb-3 flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 text-[11px]">
-                  <button type="button" onclick="toggleVoiceAnnotation('trial3')" id="btn-record-trial3" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center space-x-1">
-                    <span>🎙️</span>
-                    <span id="label-record-trial3" data-en="Record Athlete" data-ko="음성 녹음">Record Athlete</span>
-                  </button>
-                  <div id="audio-player-trial3" class="hidden"></div>
-                </div>
-                <div id="trial-words-3" class="space-y-1.5"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-3 flex justify-end">
-            <div class="text-xs font-bold text-indigo-900 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">
-              <span data-en="Immediate Memory Total:" data-ko="즉각 기억력 합계 점수:">Immediate Memory Total:</span> <span id="immediate-total-display">0</span> / 30
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Part 3: Concentration (Digits Backwards & Months in Reverse) -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Digits Backwards (0-4 pts) -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>
-              <span data-en="Digits Backwards (4 points)" data-ko="숫자 역순 말하기 (총 4점)">Digits Backwards (4 points)</span>
-            </h3>
-            <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-lg border border-violet-200">
-              <span id="digits-score-display">0</span> / 4
-            </span>
-          </div>
-
-          <!-- Digits Player Instructions -->
-          <div class="mt-4 bg-violet-50/70 border border-violet-200 rounded-xl p-4 text-xs">
-            <div class="flex items-start space-x-2.5">
-              <span class="text-violet-700 text-base">📢</span>
-              <div class="flex-1">
-                <h4 class="font-bold text-violet-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-                <p class="text-violet-800 italic leading-relaxed" data-en="&ldquo;I am going to read a string of numbers. When I finish, repeat them back to me in backwards (reverse) order. For example, if I say 7-1-9, you should say 9-1-7.&rdquo;" data-ko="&ldquo;숫자를 몇 개 불러드릴 것입니다. 제가 다 부르면 역순(거꾸로)으로 따라 하시면 됩니다. 예를 들어 제가 7-1-9라고 하면, 9-1-7이라고 말씀하시면 됩니다.&rdquo;">
-                  &ldquo;I am going to read a string of numbers. When I finish, repeat them back to me in backwards (reverse) order. For example, if I say 7-1-9, you should say 9-1-7.&rdquo;
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reveal / Hide Button -->
-          <div class="mt-4 flex items-center justify-between">
-            <button type="button" onclick="toggleTestVisibility('digits-content-panel', this)" data-target="digits-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white shadow-xs transition active:scale-95">
-              <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <span class="btn-label" data-en="Reveal Digits Test" data-ko="숫자 역순 검사 열기">Reveal Digits Test</span>
+      <!-- Orientation -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" id="orient-title">1. Orientation (/5)</h3>
+        
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900 mb-3">
+          <div class="flex justify-between items-center">
+            <strong id="orient-inst-title">Instructions:</strong>
+            <button onclick="toggleInstructions('orient-inst-body')" class="no-print bg-amber-600 text-white px-2 py-0.5 rounded text-[10px]">
+              👁️ <span class="inst-toggle-label">Hide / Show</span>
             </button>
-            <span class="text-[10px] text-slate-400 italic" data-en="Hide numbers from player" data-ko="숫자 조합을 가려주세요">Hide numbers from player</span>
           </div>
-
-          <div id="digits-content-panel" class="hidden space-y-3 mt-4 text-xs">
-            <!-- 3 digits -->
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span class="font-bold text-slate-800">3 Digits:</span>
-                <span class="text-slate-600 ml-2 font-mono">4-9-3 [3-9-4] / 6-2-9 [9-2-6]</span>
-              </div>
-              <div class="flex space-x-2">
-                <button onclick="setDigitItem(0, 0)" id="digit-btn-0-0" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold">Fail (0)</button>
-                <button onclick="setDigitItem(0, 1)" id="digit-btn-0-1" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold">Pass (1)</button>
-              </div>
-            </div>
-
-            <!-- 4 digits -->
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span class="font-bold text-slate-800">4 Digits:</span>
-                <span class="text-slate-600 ml-2 font-mono">3-8-1-4 [4-1-8-3] / 3-2-7-9</span>
-              </div>
-              <div class="flex space-x-2">
-                <button onclick="setDigitItem(1, 0)" id="digit-btn-1-0" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold">Fail (0)</button>
-                <button onclick="setDigitItem(1, 1)" id="digit-btn-1-1" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold">Pass (1)</button>
-              </div>
-            </div>
-
-            <!-- 5 digits -->
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span class="font-bold text-slate-800">5 Digits:</span>
-                <span class="text-slate-600 ml-2 font-mono">6-2-9-7-1 [1-7-9-2-6]</span>
-              </div>
-              <div class="flex space-x-2">
-                <button onclick="setDigitItem(2, 0)" id="digit-btn-2-0" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold">Fail (0)</button>
-                <button onclick="setDigitItem(2, 1)" id="digit-btn-2-1" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold">Pass (1)</button>
-              </div>
-            </div>
-
-            <!-- 6 digits -->
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span class="font-bold text-slate-800">6 Digits:</span>
-                <span class="text-slate-600 ml-2 font-mono">7-1-8-4-6-2 [2-6-4-8-1-7]</span>
-              </div>
-              <div class="flex space-x-2">
-                <button onclick="setDigitItem(3, 0)" id="digit-btn-3-0" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold">Fail (0)</button>
-                <button onclick="setDigitItem(3, 1)" id="digit-btn-3-1" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold">Pass (1)</button>
-              </div>
-            </div>
-          </div>
+          <p id="orient-inst-body" class="mt-1">Ask the athlete the following questions without checking phones or calendars.</p>
         </div>
 
-        <!-- Months in Reverse Order (0-1 pt) & Delayed Recall (10 pts) -->
-        <div class="space-y-6">
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 class="text-base font-bold text-slate-900" data-en="Months in Reverse Order (1 pt)" data-ko="월 역순 말하기 (1점)">Months in Reverse Order (1 pt)</h3>
-              <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-                <span id="months-score-display">0</span> / 1
-              </span>
-            </div>
-
-            <!-- Months Player Instructions -->
-            <div class="mt-4 bg-slate-100 border border-slate-200 rounded-xl p-4 text-xs">
-              <div class="flex items-start space-x-2.5">
-                <span class="text-slate-700 text-base">📢</span>
-                <div class="flex-1">
-                  <h4 class="font-bold text-slate-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-                  <p class="text-slate-800 italic leading-relaxed" data-en="&ldquo;Now tell me the months of the year in reverse order, starting with December and ending with January: December, November, October, and so on.&rdquo;" data-ko="&ldquo;이제 12월부터 시작하여 1월까지 1년의 월을 역순으로 말씀해 주십시오: 12월, 11월, 10월 순서대로 끝까지 말씀하시면 됩니다.&rdquo;">
-                    &ldquo;Now tell me the months of the year in reverse order, starting with December and ending with January: December, November, October, and so on.&rdquo;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reveal / Hide Button -->
-            <div class="mt-4 flex items-center justify-between">
-              <button type="button" onclick="toggleTestVisibility('months-content-panel', this)" data-target="months-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-800 text-white shadow-xs transition active:scale-95">
-                <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                <span class="btn-label" data-en="Reveal Scoring Buttons" data-ko="채점 버튼 열기">Reveal Scoring Buttons</span>
-              </button>
-            </div>
-
-            <div id="months-content-panel" class="hidden flex space-x-3 mt-3">
-              <button onclick="setMonthsScore(0)" id="months-btn-0" class="flex-1 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-bold text-xs" data-en="Incorrect / Incomplete (0)" data-ko="실패 / 불완전 (0점)">Incorrect (0)</button>
-              <button onclick="setMonthsScore(1)" id="months-btn-1" class="flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs" data-en="100% Correct (1)" data-ko="완전 성공 (1점)">100% Correct (1)</button>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span id="q-month">What month is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
           </div>
-
-          <!-- Delayed Word Recall (10 pts) -->
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                <span data-en="Delayed Recall (10 points)" data-ko="지연 회상 검사 (총 10점)">Delayed Recall (10 points)</span>
-              </h3>
-              <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                <span id="delayed-score-display">0</span> / 10
-              </span>
-            </div>
-
-            <!-- Delayed Recall Player Instructions -->
-            <div class="mt-4 bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs">
-              <div class="flex items-start space-x-2.5">
-                <span class="text-amber-700 text-base">📢</span>
-                <div class="flex-1">
-                  <h4 class="font-bold text-amber-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-                  <p class="text-amber-800 italic leading-relaxed" data-en="&ldquo;Do you remember that list of 10 words I read to you earlier in the assessment? Please tell me as many of those words as you can remember now, in any order.&rdquo;" data-ko="&ldquo;이전 검사 초반에 제가 읽어드렸던 10개의 단어 목록을 기억하십니까? 순서에 상관없이 지금 기억나는 단어를 모두 말씀해 주시기 바랍니다.&rdquo;">
-                    &ldquo;Do you remember that list of 10 words I read to you earlier in the assessment? Please tell me as many of those words as you can remember now, in any order.&rdquo;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reveal / Hide Button -->
-            <div class="mt-4 flex items-center justify-between">
-              <button type="button" onclick="toggleTestVisibility('delayed-content-panel', this)" data-target="delayed-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition active:scale-95">
-                <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                <span class="btn-label" data-en="Reveal Delayed Recall Words" data-ko="지연 회상 단어 열기">Reveal Delayed Recall Words</span>
-              </button>
-              <span class="text-[10px] text-slate-400 italic" data-en="Do not show words or provide cues" data-ko="힌트를 주거나 단어를 미리 보여주지 마세요">Do not show words or provide cues</span>
-            </div>
-
-            <div id="delayed-content-panel" class="hidden mt-4">
-              <div class="mb-3 flex flex-wrap items-center justify-between gap-2 bg-amber-50/60 p-2.5 rounded-xl border border-amber-200 text-xs">
-                <div class="flex items-center space-x-2">
-                  <span class="font-bold text-amber-900" data-en="Listen & Pronounce:" data-ko="단어 발음 듣기:">Listen & Pronounce:</span>
-                  <button type="button" onclick="playPacedWordList('en')" class="px-2 py-1 rounded-md bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 font-semibold shadow-2xs">
-                    🔊 EN
-                  </button>
-                  <button type="button" onclick="playPacedWordList('ko')" class="px-2 py-1 rounded-md bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 font-semibold shadow-2xs">
-                    🔊 KO
-                  </button>
-                </div>
-                <div>
-                  <button type="button" onclick="toggleVoiceAnnotation('delayed')" id="btn-record-delayed" class="px-2.5 py-1 rounded-md bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 font-semibold flex items-center space-x-1">
-                    <span>🎙️</span>
-                    <span id="label-record-delayed" data-en="Record Delayed Recall" data-ko="지연 회상 음성 녹음">Record Delayed Recall</span>
-                  </button>
-                </div>
-              </div>
-              <div id="audio-player-delayed" class="hidden mb-3"></div>
-
-              <div id="delayed-words-container" class="grid grid-cols-2 gap-2 mt-3 text-xs">
-                <!-- Rendered via JS -->
-              </div>
-            </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span id="q-date">What is today's date?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span id="q-day">What day of the week is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span id="q-year">What year is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border md:col-span-2">
+            <span id="q-time">What time is it right now? (within 1 hour)</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
           </div>
         </div>
       </div>
 
-      <div class="flex justify-between items-center pt-2">
-        <button onclick="switchTab('tab-symptoms')" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition">
-          <span data-en="Back: Symptoms" data-ko="이전: 증상 평가">Back: Symptoms</span>
-        </button>
-        <button onclick="switchTab('tab-balance')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition flex items-center space-x-2">
-          <span data-en="Next: Balance Assessment (mBESS)" data-ko="다음: 균형 검사 (mBESS)">Next: Balance Assessment (mBESS)</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
+      <!-- Immediate Memory -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex justify-between items-center mb-2 border-b pb-2">
+          <h3 class="font-bold text-slate-800 text-md" id="imm-mem-title">2. Immediate Memory (10 Words - 3 Trials /30)</h3>
+          <div class="flex items-center space-x-2 no-print">
+            <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs">🔊 Audio EN</button>
+            <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs">🔊 Audio 한</button>
+          </div>
+        </div>
+
+        <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
+          <!-- Words rendered via JS -->
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" id="trial1-label">Trial 1</span>
+            <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" id="trial2-label">Trial 2</span>
+            <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" id="trial3-label">Trial 3</span>
+            <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Delayed Recall -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" id="del-mem-title">3. Delayed Recall (/10)</h3>
+        <p class="text-xs text-slate-600 mb-3" id="del-mem-sub">Do not read the words again. Ask athlete to recall as many words from earlier as possible.</p>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs font-semibold text-slate-700" id="del-mem-score-lbl">Words Recalled:</label>
+          <input type="number" min="0" max="10" value="0" id="delayed-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1.5 border rounded">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 4: mBESS BALANCE -->
+    <section id="sec-balance" class="tab-content hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" id="mbess-title">Modified Balance Error Scoring System (mBESS)</h3>
+        <p class="text-xs text-slate-600 mb-4" id="mbess-sub">20-second firm surface stance tests with eyes closed and hands on hips. Maximum 10 errors per trial.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Double Leg -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" id="stance-1">Double Leg Stance</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-dl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('dl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('dl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <!-- Single Leg -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" id="stance-2">Single Leg Stance (Non-Dominant)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-sl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('sl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('sl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <!-- Tandem Stance -->
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" id="stance-3">Tandem Stance (Non-Dominant Back)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-tan">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('tan', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('tan', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex justify-between items-center text-xs text-indigo-900">
+          <span class="font-semibold" id="mbess-total-lbl">Total mBESS Errors:</span>
+          <span id="mbess-total-display" class="text-base font-bold text-indigo-700">0 / 30</span>
+        </div>
       </div>
     </section>
 
-    <!-- ========================================== -->
-    <!-- TAB 4: BALANCE EXAMINATION (mBESS)         -->
-    <!-- ========================================== -->
-    <section id="tab-balance" class="tab-pane hidden space-y-6">
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-          <div>
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
-              <span data-en="Modified Balance Error Scoring System (mBESS)" data-ko="수정된 균형 오류 채점 체계 (mBESS)">Modified Balance Error Scoring System (mBESS)</span>
-            </h3>
-            <p class="text-xs text-slate-500 mt-1" data-en="20 seconds per stance on firm surface. Eyes closed, hands on iliac crests. Max 10 errors per stance (Max total: 30 errors)." data-ko="단단한 바닥에서 각 자세마다 20초간 실시. 눈을 감고 양손을 골반(장골능)에 올립니다. 각 자세당 최대 10개 오류 (최대 총 30개 오류).">
-              20 seconds per stance on firm surface. Eyes closed, hands on iliac crests. Max 10 errors per stance (Max total: 30 errors).
-            </p>
-          </div>
-          <!-- Balance Error Total -->
-          <div class="bg-teal-50 border border-teal-200 rounded-xl px-4 py-2 text-right">
-            <p class="text-[11px] text-teal-800 font-semibold" data-en="Total Balance Errors" data-ko="총 균형 오류 수">Total Balance Errors</p>
-            <p class="text-xl font-black text-teal-900"><span id="mbess-total-errors">0</span> <span class="text-xs font-medium text-teal-700">/ 30</span></p>
-          </div>
-        </div>
-
-        <!-- mBESS Player Instructions -->
-        <div class="mt-4 bg-teal-50/70 border border-teal-200 rounded-xl p-4 text-xs">
-          <div class="flex items-start space-x-2.5">
-            <span class="text-teal-700 text-base">📢</span>
-            <div class="flex-1">
-              <h4 class="font-bold text-teal-900 mb-1" data-en="Instructions for the Athlete:" data-ko="선수를 위한 검사 안내:">Instructions for the Athlete:</h4>
-              <p class="text-teal-800 italic leading-relaxed" data-en="&ldquo;You will test your balance in 3 different 20-second stances on a firm flat surface with your footwear off: Double leg, Single leg on your non-dominant foot, and Tandem (heel-to-toe). Keep your hands firmly placed on your hips and close your eyes. If you lose your balance, open your eyes briefly to regain the testing stance as quickly as possible, then close your eyes again.&rdquo;" data-ko="&ldquo;신발을 벗고 평평한 바닥에서 3가지 자세를 각각 20초간 유지하며 균형을 평가합니다: 두 발 지지, 비우세 발 한 발 지지, 일렬(탠덤) 자세입니다. 양손은 골반(허리)에 단단히 고정하고 눈을 감으셔야 합니다. 만약 균형을 잃더라도 가능한 한 신속하게 원래 자세로 복귀한 후 다시 눈을 감아주십시오.&rdquo;">
-                &ldquo;You will test your balance in 3 different 20-second stances on a firm flat surface with your footwear off: Double leg, Single leg on your non-dominant foot, and Tandem (heel-to-toe). Keep your hands firmly placed on your hips and close your eyes. If you lose your balance, open your eyes briefly to regain the testing stance as quickly as possible, then close your eyes again.&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reveal / Hide Button -->
-        <div class="mt-4 flex items-center justify-between">
-          <button type="button" onclick="toggleTestVisibility('mbess-content-panel', this)" data-target="mbess-content-panel" data-revealed="false" class="toggle-section-btn inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition active:scale-95">
-            <svg class="w-4 h-4 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            <span class="btn-label" data-en="Reveal Balance Stances" data-ko="균형 검사 자세 열기">Reveal Balance Stances</span>
-          </button>
-          <span class="text-[11px] text-slate-400 italic" data-en="Demonstrate positions to athlete before initiating timer" data-ko="타이머 시작 전 선수에게 올바른 자세를 시범 보여주세요">Demonstrate positions to athlete before initiating timer</span>
-        </div>
-
-        <!-- Collapsible 3 Stances Grid -->
-        <div id="mbess-content-panel" class="hidden mt-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Stance 1: Double Leg Stance -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <h4 class="text-sm font-bold text-slate-900" data-en="1. Double Leg Stance" data-ko="1. 두 발 지지 자세">1. Double Leg Stance</h4>
-                  <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">20 sec</span>
-                </div>
-                <p class="text-xs text-slate-600 mb-4" data-en="Feet together touching at med malleoli. Hands on hips, eyes closed." data-ko="양 발의 안쪽 복사뼈를 맞대고 나란히 서서 눈을 감고 손을 허리에 둡니다.">
-                  Feet together touching at med malleoli. Hands on hips, eyes closed.
-                </p>
-              </div>
-              
-              <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-                <span class="text-xs text-slate-500 font-semibold block mb-1" data-en="Errors Counted" data-ko="기록된 오류">Errors Counted</span>
-                <div class="flex items-center justify-center space-x-3 my-2">
-                  <button onclick="updateMbess(0, -1)" class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-lg active:scale-95 transition">-</button>
-                  <span id="mbess-val-0" class="text-2xl font-black text-slate-900 w-12 text-center">0</span>
-                  <button onclick="updateMbess(0, 1)" class="w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg active:scale-95 transition">+</button>
-                </div>
-                <span class="text-[11px] text-slate-400" data-en="Max: 10 errors" data-ko="최대 10개">Max: 10 errors</span>
-              </div>
-            </div>
-
-            <!-- Stance 2: Single Leg Stance (Non-Dominant) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <h4 class="text-sm font-bold text-slate-900" data-en="2. Single Leg (Non-dominant)" data-ko="2. 한 발 지지 (비우세 발)">2. Single Leg (Non-dominant)</h4>
-                  <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">20 sec</span>
-                </div>
-                <p class="text-xs text-slate-600 mb-4" data-en="Stand on non-dominant foot, hips flexed ~20-30°, knee flexed ~40-50°. Hands on hips." data-ko="비우세 발로 서고 반대쪽 다리는 엉덩이 약 30도, 무릎 약 45도 굽힙니다.">
-                  Stand on non-dominant foot, hips flexed ~20-30°, knee flexed ~40-50°. Hands on hips.
-                </p>
-              </div>
-              
-              <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-                <span class="text-xs text-slate-500 font-semibold block mb-1" data-en="Errors Counted" data-ko="기록된 오류">Errors Counted</span>
-                <div class="flex items-center justify-center space-x-3 my-2">
-                  <button onclick="updateMbess(1, -1)" class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-lg active:scale-95 transition">-</button>
-                  <span id="mbess-val-1" class="text-2xl font-black text-slate-900 w-12 text-center">0</span>
-                  <button onclick="updateMbess(1, 1)" class="w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg active:scale-95 transition">+</button>
-                </div>
-                <span class="text-[11px] text-slate-400" data-en="Max: 10 errors" data-ko="최대 10개">Max: 10 errors</span>
-              </div>
-            </div>
-
-            <!-- Stance 3: Tandem Stance (Non-Dominant in Back) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <h4 class="text-sm font-bold text-slate-900" data-en="3. Tandem Stance" data-ko="3. 일렬 지지 (탠덤) 자세">3. Tandem Stance</h4>
-                  <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">20 sec</span>
-                </div>
-                <p class="text-xs text-slate-600 mb-4" data-en="Heel-to-toe with non-dominant foot in the rear. Hands on hips, eyes closed." data-ko="비우세 발을 뒤로 두고 앞발 뒤꿈치와 뒷발 앞발가락을 일렬로 밀착합니다.">
-                  Heel-to-toe with non-dominant foot in the rear. Hands on hips, eyes closed.
-                </p>
-              </div>
-              
-              <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-                <span class="text-xs text-slate-500 font-semibold block mb-1" data-en="Errors Counted" data-ko="기록된 오류">Errors Counted</span>
-                <div class="flex items-center justify-center space-x-3 my-2">
-                  <button onclick="updateMbess(2, -1)" class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-lg active:scale-95 transition">-</button>
-                  <span id="mbess-val-2" class="text-2xl font-black text-slate-900 w-12 text-center">0</span>
-                  <button onclick="updateMbess(2, 1)" class="w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg active:scale-95 transition">+</button>
-                </div>
-                <span class="text-[11px] text-slate-400" data-en="Max: 10 errors" data-ko="최대 10개">Max: 10 errors</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Error Definition Guide -->
-          <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
-            <p class="font-bold text-slate-800 mb-1" data-en="Types of BESS Errors to Count:" data-ko="측정 대상 오류 유형:">Types of BESS Errors to Count:</p>
-            <ul class="list-disc list-inside space-y-0.5 text-slate-600 text-[11px]">
-              <li data-en="Hands lifted off iliac crest" data-ko="손이 골반(장골능)에서 떨어짐">Hands lifted off iliac crest</li>
-              <li data-en="Opening eyes during testing" data-ko="검사 도중 눈을 뜸">Opening eyes during testing</li>
-              <li data-en="Step, stumble, or fall" data-ko="발을 헛디딤, 비틀거림 또는 넘어짐">Step, stumble, or fall</li>
-              <li data-en="Moving hip into > 30 degrees abduction" data-ko="엉덩관절이 30도 이상 외전(벌어짐)">Moving hip into > 30 degrees abduction</li>
-              <li data-en="Lifting forefoot or heel off test surface" data-ko="앞발 또는 발뒤꿈치가 바닥에서 들림">Lifting forefoot or heel off test surface</li>
-              <li data-en="Remaining out of test position > 5 seconds" data-ko="5초 이상 검사 기본 자세로 복귀하지 못함">Remaining out of test position > 5 seconds</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <button onclick="switchTab('tab-cognitive')" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition">
-          <span data-en="Back: Cognitive" data-ko="이전: 인지 평가">Back: Cognitive</span>
-        </button>
-        <button onclick="generateReport(); switchTab('tab-summary')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition flex items-center space-x-2">
-          <span data-en="View SCOAT6 Clinical Summary Report" data-ko="SCOAT6 종합 임상 보고서 보기">View SCOAT6 Clinical Summary Report</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- TAB 5: CLINICAL SUMMARY & EXPORT           -->
-    <!-- ========================================== -->
-    <section id="tab-summary" class="tab-pane hidden space-y-6">
+    <!-- TAB 5: CLINICAL REPORT & EXPORT -->
+    <section id="sec-report" class="tab-content hidden space-y-6">
       
-      <!-- Action Toolbar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 no-print bg-white p-4 rounded-2xl border border-slate-200">
+      <!-- Top Action Toolbar -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-3 no-print">
         <div>
-          <h2 class="text-base font-bold text-slate-900" data-en="SCOAT6 Clinical Assessment Summary" data-ko="SCOAT6 임상 평가 종합 보고서">SCOAT6 Clinical Assessment Summary</h2>
-          <p class="text-xs text-slate-500" data-en="Ready for medical record export or player review." data-ko="의무기록 저장 또는 선수 검토용 보고서가 생성되었습니다.">Ready for medical record export or player review.</p>
+          <h3 class="font-bold text-slate-800" id="rep-toolbar-title">SCOAT6 Clinical Evaluation Summary</h3>
+          <p class="text-xs text-slate-500" id="rep-toolbar-sub">Export or print the finalized patient concussion assessment report.</p>
         </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="copySummaryText()" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition flex items-center space-x-1.5">
-            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-            <span data-en="Copy Text" data-ko="보고서 복사">Copy Text</span>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="copyEMRText()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📋 <span id="btn-txt-emr">Copy EMR Text</span>
           </button>
-          <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-sm transition flex items-center space-x-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <span data-en="Print / PDF" data-ko="인쇄 / PDF 저장">Print / PDF</span>
+          <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📥 <span id="btn-txt-pdf">Download PDF Report</span>
+          </button>
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            🖨️ <span id="btn-txt-print">Print Report</span>
           </button>
         </div>
       </div>
 
-      <!-- Printable Report Sheet -->
-      <div id="printable-report" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
+      <!-- PRINTABLE REPORT CONTAINER -->
+      <div id="pdf-report-content" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 text-slate-900 space-y-6 card-box">
         
         <!-- Header -->
-        <div class="border-b border-slate-200 pb-4 flex justify-between items-start">
+        <div class="border-b pb-4 flex justify-between items-start">
           <div>
-            <span class="text-xs uppercase tracking-wider font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">SCOAT6 Clinical Report</span>
-            <h2 class="text-xl font-bold text-slate-900 mt-1">Sport Concussion Office Assessment Tool (6th Edition)</h2>
-            <p class="text-xs text-slate-500" data-en="Concussion in Sport Group (Amsterdam Consensus Guidelines)" data-ko="국제 스포츠 뇌진탕 그룹 (암스테르담 합의 지침 준수)">Concussion in Sport Group (Amsterdam Consensus Guidelines)</p>
+            <h2 class="text-2xl font-bold text-slate-900">SCOAT6 Clinical Evaluation Report</h2>
+            <p class="text-xs text-slate-500">Sport Concussion Office Assessment Tool - 6th Edition Guidelines</p>
           </div>
           <div class="text-right text-xs text-slate-500">
-            <p><span class="font-semibold text-slate-700" data-en="Date:" data-ko="일시:">Date:</span> <span id="rep-date">--</span></p>
-            <p><span class="font-semibold text-slate-700" data-en="Evaluator:" data-ko="평가자:">Evaluator:</span> <span id="rep-evaluator">--</span></p>
+            <p>Generated: <span id="rep-gen-date">--</span></p>
+            <p>Language: <span id="rep-lang-indicator">English</span></p>
           </div>
         </div>
 
-        <!-- Athlete Profile Header -->
-        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div>
-            <span class="text-slate-400 block" data-en="Athlete Name" data-ko="선수 성명">Athlete Name</span>
-            <span id="rep-name" class="font-bold text-slate-800 text-sm">--</span>
-          </div>
-          <div>
-            <span class="text-slate-400 block" data-en="DOB / Age" data-ko="생년월일/나이">DOB / Age</span>
-            <span id="rep-dob" class="font-semibold text-slate-800">--</span>
-          </div>
-          <div>
-            <span class="text-slate-400 block" data-en="Sport & Position" data-ko="종목/포지션">Sport & Position</span>
-            <span id="rep-sport" class="font-semibold text-slate-800">--</span>
-          </div>
-          <div>
-            <span class="text-slate-400 block" data-en="Past Concussions" data-ko="과거 뇌진탕 이력">Past Concussions</span>
-            <span id="rep-past-conc" class="font-semibold text-slate-800">0</span>
-          </div>
+        <!-- Demographics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs border">
+          <div><span class="text-slate-500 block">Athlete Name:</span><strong id="rep-name">--</strong></div>
+          <div><span class="text-slate-500 block">Date of Birth:</span><strong id="rep-dob">--</strong></div>
+          <div><span class="text-slate-500 block">Sport/Team:</span><strong id="rep-sport">--</strong></div>
+          <div><span class="text-slate-500 block">Examiner:</span><strong id="rep-examiner">--</strong></div>
         </div>
 
-        <!-- 4 Key Component Score Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-500 font-semibold" data-en="Symptom Number" data-ko="유증상 항목 수">Symptom Number</span>
-            <p class="text-2xl font-black text-slate-900 mt-1"><span id="rep-symp-count">0</span> <span class="text-xs font-normal text-slate-500">/ 22</span></p>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-500 font-semibold" data-en="Symptom Severity" data-ko="증상 중증도 점수">Symptom Severity</span>
-            <p class="text-2xl font-black text-rose-600 mt-1"><span id="rep-symp-score">0</span> <span class="text-xs font-normal text-slate-500">/ 132</span></p>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-500 font-semibold" data-en="Cognitive Score" data-ko="인지 총점 (기억+집중)">Cognitive Score</span>
-            <p class="text-2xl font-black text-indigo-600 mt-1"><span id="rep-cog-total">0</span> <span class="text-xs font-normal text-slate-500">/ 45</span></p>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-500 font-semibold" data-en="mBESS Errors" data-ko="균형 검사 오류수">mBESS Errors</span>
-            <p class="text-2xl font-black text-teal-600 mt-1"><span id="rep-mbess-total">0</span> <span class="text-xs font-normal text-slate-500">/ 30</span></p>
-          </div>
+        <!-- Summary Scores Table -->
+        <div>
+          <h3 class="font-bold text-sm mb-2 border-b pb-1 text-indigo-900">Score Summary Breakdown</h3>
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="p-2 border">Assessment Module</th>
+                <th class="p-2 border">Score Result</th>
+                <th class="p-2 border">Max Possible</th>
+                <th class="p-2 border">Clinical Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border font-medium">Red Flags Triage</td>
+                <td class="p-2 border font-bold" id="rep-rf-status">Negative</td>
+                <td class="p-2 border">--</td>
+                <td class="p-2 border text-slate-500" id="rep-rf-note">No emergency signs reported</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium">Total Symptom Number</td>
+                <td class="p-2 border font-bold" id="rep-symp-num">0</td>
+                <td class="p-2 border">22</td>
+                <td class="p-2 border text-slate-500">Symptom scale score</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium">Symptom Severity Score</td>
+                <td class="p-2 border font-bold" id="rep-symp-sev">0</td>
+                <td class="p-2 border">132</td>
+                <td class="p-2 border text-slate-500">Likert sum (0-6 scale)</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium">Cognitive Evaluation</td>
+                <td class="p-2 border font-bold" id="rep-cog-score">0</td>
+                <td class="p-2 border">50</td>
+                <td class="p-2 border text-slate-500">Orientation + Memory</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium">mBESS Balance Errors</td>
+                <td class="p-2 border font-bold" id="rep-mbess-score">0</td>
+                <td class="p-2 border">30</td>
+                <td class="p-2 border text-slate-500">Total error counts</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- Detailed Breakdown Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          
-          <!-- Cognitive Breakdown -->
-          <div class="border border-slate-200 rounded-xl p-4">
-            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-              <span data-en="Cognitive Evaluation Breakdown" data-ko="인지 기능 세부 평가 결과">Cognitive Evaluation Breakdown</span>
-            </h4>
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Orientation" data-ko="지남력 (Orientation)">Orientation</span>
-                <span id="rep-cog-orient" class="font-bold text-slate-900">5 / 5</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Immediate Memory (3 trials)" data-ko="즉각 기억력 (3회차 합산)">Immediate Memory (3 trials)</span>
-                <span id="rep-cog-immed" class="font-bold text-slate-900">0 / 30</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Digits Backwards" data-ko="숫자 역순 암송 (Concentration)">Digits Backwards</span>
-                <span id="rep-cog-digits" class="font-bold text-slate-900">0 / 4</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Months in Reverse" data-ko="월 역순 말하기">Months in Reverse</span>
-                <span id="rep-cog-months" class="font-bold text-slate-900">0 / 1</span>
-              </div>
-              <div class="flex justify-between py-1">
-                <span class="text-slate-600" data-en="Delayed Word Recall" data-ko="지연 회상 (Delayed Recall)">Delayed Word Recall</span>
-                <span id="rep-cog-delayed" class="font-bold text-slate-900">0 / 10</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Balance Breakdown -->
-          <div class="border border-slate-200 rounded-xl p-4">
-            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-              <span data-en="Balance Testing (mBESS Errors)" data-ko="균형 검사 세부 오류 (mBESS)">Balance Testing (mBESS Errors)</span>
-            </h4>
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Double Leg Stance" data-ko="두 발 지지 자세 오류">Double Leg Stance</span>
-                <span id="rep-mbess-double" class="font-bold text-slate-900">0 errors</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100">
-                <span class="text-slate-600" data-en="Single Leg Stance (Non-dominant)" data-ko="한 발 지지 자세 (비우세 발)">Single Leg Stance (Non-dominant)</span>
-                <span id="rep-mbess-single" class="font-bold text-slate-900">0 errors</span>
-              </div>
-              <div class="flex justify-between py-1">
-                <span class="text-slate-600" data-en="Tandem Stance" data-ko="일렬 지지 (탠덤) 자세">Tandem Stance</span>
-                <span id="rep-mbess-tandem" class="font-bold text-slate-900">0 errors</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Prominent Reported Symptoms List -->
-        <div class="border border-slate-200 rounded-xl p-4">
-          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2" data-en="Active Symptoms Reported (> 0 Severity):" data-ko="현재 보고된 증상 목록 (중증도 1점 이상):">Active Symptoms Reported (> 0 Severity):</h4>
-          <div id="rep-active-symptoms" class="text-xs text-slate-600 flex flex-wrap gap-2">
-            <span class="text-slate-400 italic">No symptoms endorsed.</span>
-          </div>
-        </div>
-
-        <!-- Clinical Impression / Decision Guidance -->
-        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs">
-          <h4 class="font-bold text-amber-900 mb-1" data-en="SCOAT6 Clinical Interpretation Note" data-ko="SCOAT6 임상 해석 및 가이드라인">SCOAT6 Clinical Interpretation Note</h4>
-          <p class="text-amber-800 leading-relaxed" data-en="SCOAT6 is not a standalone diagnostic test, but a multimodal clinical assessment. Athletes evaluated with ongoing symptoms, cognitive decrement, or balance impairment MUST NOT return to contact sports on the same day. Any return to learn / play should follow a graduated stepwise protocol supervised by a licensed healthcare professional." data-ko="SCOAT6는 단독 진단 검사가 아닌 다면적 임상 평가 도구입니다. 증상이 지속되거나 인지 및 균형 저하가 나타난 선수는 절대로 당일 스포츠 경기에 복귀해서는 안 됩니다. 학업 및 스포츠 복귀는 전문 의료진의 지도 하에 단계적 복귀 지침을 엄격히 따라야 합니다.">
-            SCOAT6 is not a standalone diagnostic test, but a multimodal clinical assessment. Athletes evaluated with ongoing symptoms, cognitive decrement, or balance impairment MUST NOT return to contact sports on the same day. Any return to learn / play should follow a graduated stepwise protocol supervised by a licensed healthcare professional.
-          </p>
-        </div>
-
-        <!-- Sign-off Block for Print -->
-        <div class="pt-6 border-t border-slate-200 grid grid-cols-2 gap-6 text-xs text-slate-500">
+        <!-- Clinician Signature Box -->
+        <div class="pt-8 border-t text-xs grid grid-cols-2 gap-8">
           <div>
-            <div class="border-b border-slate-300 pb-1 mb-1 font-semibold text-slate-700">__________________________________________</div>
-            <span data-en="Healthcare Professional Signature" data-ko="의료 전문가 서명">Healthcare Professional Signature</span>
+            <p class="text-slate-500 mb-6">Clinician Signature:</p>
+            <div class="border-b border-slate-400 w-full"></div>
           </div>
           <div>
-            <div class="border-b border-slate-300 pb-1 mb-1 font-semibold text-slate-700">__________________________________________</div>
-            <span data-en="Player / Guardian Signature" data-ko="선수 / 보호자 서명">Player / Guardian Signature</span>
+            <p class="text-slate-500 mb-6">Date & License #:</p>
+            <div class="border-b border-slate-400 w-full"></div>
           </div>
         </div>
 
@@ -1080,820 +392,250 @@
 
   </main>
 
-  <!-- Notification Modal / Toast Message Container -->
-  <div id="app-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden transition-opacity">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center animate-scale-up">
-      <div id="modal-icon-container" class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-      </div>
-      <h3 id="modal-title" class="text-base font-bold text-slate-900 mb-1">Success</h3>
-      <p id="modal-body" class="text-xs text-slate-500 mb-5">Action completed successfully.</p>
-      <button onclick="closeModal()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow transition">
-        OK
-      </button>
-    </div>
-  </div>
-
+  <!-- APP JAVASCRIPT LOGIC -->
   <script>
-    /* ==========================================================
-       DATA STRUCTURES & BILINGUAL CONTENT
-       ========================================================== */
+    // State
     let currentLang = 'en';
+    let mbessErrors = { dl: 0, sl: 0, tan: 0 };
 
-    // The 22 standardized symptoms from SCAT6 / SCOAT6
-    const SCOAT_SYMPTOMS = [
-      { id: 'headache', en: 'Headache', ko: '두통 (머리 아픔)' },
-      { id: 'head_pressure', en: 'Pressure in head', ko: '머리가 꽉 찬 느낌 (압박감)' },
-      { id: 'neck_pain', en: 'Neck pain', ko: '목 통증' },
-      { id: 'nausea_vomiting', en: 'Nausea or vomiting', ko: '메스꺼움 또는 구토감' },
-      { id: 'dizziness', en: 'Dizziness', ko: '어지럼증' },
-      { id: 'blurred_vision', en: 'Blurred vision', ko: '흐릿한 시야 (침침함)' },
-      { id: 'balance_problems', en: 'Balance problems', ko: '균형 잡기 어려움' },
-      { id: 'sensitivity_light', en: 'Sensitivity to light', ko: '빛에 민감함 (눈부심)' },
-      { id: 'sensitivity_noise', en: 'Sensitivity to noise', ko: '소리에 민감함 (귀가 울림)' },
-      { id: 'feeling_slowed_down', en: 'Feeling slowed down', ko: '느려진 듯한 느낌' },
-      { id: 'feeling_in_fog', en: 'Feeling like "in a fog"', ko: '안개 속에 있는 듯 멍한 느낌' },
-      { id: 'dont_feel_right', en: '“Don’t feel right”', ko: '평소와 다른 이상한 느낌' },
-      { id: 'difficulty_concentrating', en: 'Difficulty concentrating', ko: '집중하기 어려움' },
-      { id: 'difficulty_remembering', en: 'Difficulty remembering', ko: '기억하기 어려움' },
-      { id: 'fatigue_low_energy', en: 'Fatigue or low energy', ko: '피로감 또는 기운 없음' },
-      { id: 'confusion', en: 'Confusion', ko: '혼란스러움' },
-      { id: 'drowsiness', en: 'Drowsiness', ko: '졸림' },
-      { id: 'more_emotional', en: 'More emotional than usual', ko: '평소보다 감정 기복이 심함' },
-      { id: 'irritability', en: 'Irritability', ko: '쉽게 짜증이 남' },
-      { id: 'sadness', en: 'Sadness', ko: '슬픈 느낌 / 우울감' },
-      { id: 'nervous_anxious', en: 'Nervous or anxious', ko: '불안함 또는 초조함' },
-      { id: 'trouble_falling_asleep', en: 'Trouble falling asleep', ko: '잠들기 어려움 (불면)' }
+    const wordList = [
+      { en: 'Finger', ko: '손가락' },
+      { en: 'Penny', ko: '동전' },
+      { en: 'Blanket', ko: '담요' },
+      { en: 'Lemon', ko: '레몬' },
+      { en: 'Insect', ko: '곤충' },
+      { en: 'Candle', ko: '양초' },
+      { en: 'Paper', ko: '종이' },
+      { en: 'Sugar', ko: '설탕' },
+      { en: 'Sandwich', ko: '샌드위치' },
+      { en: 'Wagon', ko: '수레' }
     ];
 
-    // Standard Word Lists for SCOAT6 Immediate & Delayed Memory
-    const WORD_LISTS = {
-      A: [
-        { en: 'Finger', ko: '손가락' },
-        { en: 'Penny', ko: '동전' },
-        { en: 'Blanket', ko: '담요' },
-        { en: 'Lemon', ko: '레몬' },
-        { en: 'Insect', ko: '곤충' },
-        { en: 'Candle', ko: '양초' },
-        { en: 'Paper', ko: '종이' },
-        { en: 'Sugar', ko: '설탕' },
-        { en: 'Sandwich', ko: '샌드위치' },
-        { en: 'Wagon', ko: '수레' }
-      ],
-      B: [
-        { en: 'Baby', ko: '아기' },
-        { en: 'Monkey', ko: '원숭이' },
-        { en: 'Perfume', ko: '향수' },
-        { en: 'Sunset', ko: '노을' },
-        { en: 'Iron', ko: '다리미' },
-        { en: 'Jacket', ko: '재킷' },
-        { en: 'Arrow', ko: '화살' },
-        { en: 'Pepper', ko: '후추' },
-        { en: 'Cotton', ko: '목화' },
-        { en: 'School', ko: '학교' }
-      ],
-      C: [
-        { en: 'Dollar', ko: '달러' },
-        { en: 'Honey', ko: '꿀' },
-        { en: 'Mirror', ko: '거울' },
-        { en: 'Saddle', ko: '안장' },
-        { en: 'Anchor', ko: '닻' },
-        { en: 'Bubble', ko: '거품' },
-        { en: 'Camera', ko: '카메라' },
-        { en: 'Diamond', ko: '다이아몬드' },
-        { en: 'Elephant', ko: '코끼리' },
-        { en: 'Rabbit', ko: '토끼' }
-      ]
-    };
-
-    // Assessment State Variables
-    let currentWordListKey = 'A';
-    let symptomScores = {}; // { symptomId: 0..6 }
-    let orientationScores = [1, 1, 1, 1, 1]; // 5 items
-    let immediateMemory = [
-      Array(10).fill(false), // Trial 1
-      Array(10).fill(false), // Trial 2
-      Array(10).fill(false)  // Trial 3
+    const symptomList = [
+      { id: 's1', en: 'Headache', ko: '두통' },
+      { id: 's2', en: 'Pressure in head', ko: '머리의 압박감' },
+      { id: 's3', en: 'Neck pain', ko: '목 통증' },
+      { id: 's4', en: 'Nausea or vomiting', ko: '메스꺼움 또는 구토' },
+      { id: 's5', en: 'Dizziness', ko: '어지럼증' },
+      { id: 's6', en: 'Blurred vision', ko: '시야 흐림' },
+      { id: 's7', en: 'Balance problems', ko: '균형 감각 문제' },
+      { id: 's8', en: 'Sensitivity to light', ko: '빛 공포증 / 빛 민감성' },
+      { id: 's9', en: 'Sensitivity to noise', ko: '소리 민감성' },
+      { id: 's10', en: 'Feeling slowed down', ko: '둔해진 느낌' },
+      { id: 's11', en: 'Feeling in a fog', ko: '안개 속에 있는 듯 멍함' },
+      { id: 's12', en: 'Don\'t feel right', ko: '평소와 다른 이상한 느낌' },
+      { id: 's13', en: 'Difficulty concentrating', ko: '집중력 저하' },
+      { id: 's14', en: 'Difficulty remembering', ko: '기억력 저하' },
+      { id: 's15', en: 'Fatigue or low energy', ko: '피로감 / 기력 저하' },
+      { id: 's16', en: 'Confusion', ko: '혼란' },
+      { id: 's17', en: 'Drowsiness', ko: '졸림' },
+      { id: 's18', en: 'More emotional', ko: '감정 기복 심함' },
+      { id: 's19', en: 'Irritability', ko: '짜증 / 예민함' },
+      { id: 's20', en: 'Sadness', ko: '슬픔' },
+      { id: 's21', en: 'Nervous or anxious', ko: '초조함 / 불안' },
+      { id: 's22', en: 'Trouble falling asleep', ko: '수면 장애 / 입면 어려움' }
     ];
-    let digitScores = [0, 0, 0, 0]; // 4 levels
-    let monthsReverseScore = 0; // 0 or 1
-    let delayedMemory = Array(10).fill(false);
-    let mbessErrors = [0, 0, 0]; // double, single, tandem
 
-    /* Speech & Audio Annotation State */
-    let currentPacedTimeout = null;
-    let isPacedPlaying = false;
-    let mediaRecorders = {};
-    let audioChunks = {};
-
-    window.addEventListener('DOMContentLoaded', () => {
-      // Initialize symptoms to 0
-      SCOAT_SYMPTOMS.forEach(s => symptomScores[s.id] = 0);
-      
-      // Set current date
-      const today = new Date().toISOString().split('T')[0];
-      const evalDateInput = document.getElementById('eval-date');
-      if (evalDateInput) evalDateInput.value = today;
-
-      // Render symptom UI & words
-      renderSymptomsGrid();
-      renderImmediateMemoryWords();
-      renderDelayedRecallWords();
-      updateAllCalculations();
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSymptoms();
+      renderWords();
+      updateReport();
+      document.getElementById('input-eval-date').value = new Date().toISOString().slice(0, 16);
     });
 
-    /* Switch between tab screens */
-    function switchTab(targetTabId) {
-      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-      const activeEl = document.getElementById(targetTabId);
-      if (activeEl) activeEl.classList.remove('hidden');
+    // Language Toggle
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      document.getElementById('lang-btn-txt').textContent = currentLang === 'en' ? '한국어 (Korean)' : 'English (영어)';
+      renderSymptoms();
+      renderWords();
+      updateReport();
+    }
 
-      // Update Nav Button styling
-      document.querySelectorAll('.nav-tab').forEach(btn => {
-        btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-200', 'font-semibold');
-        btn.classList.add('text-slate-600', 'font-medium');
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700');
       });
-      const activeNav = document.getElementById('nav-' + targetTabId);
-      if (activeNav) {
-        activeNav.classList.remove('text-slate-600', 'font-medium');
-        activeNav.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-200', 'font-semibold');
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('bg-indigo-600', 'text-white');
+      document.getElementById(`tab-${tabId}`).classList.remove('bg-white', 'text-slate-700');
+      
+      if (tabId === 'report') updateReport();
     }
 
-    /* Red Flags checker */
-    function checkRedFlags() {
-      const checked = document.querySelectorAll('.red-flag-checkbox:checked').length;
-      const alertBox = document.getElementById('red-flag-alert');
-      if (checked > 0) {
-        alertBox.classList.remove('hidden');
-      } else {
-        alertBox.classList.add('hidden');
-      }
-    }
-
-    function renderSymptomsGrid() {
-      const container = document.getElementById('symptoms-container');
-      if (!container) return;
-      container.innerHTML = '';
-
-      SCOAT_SYMPTOMS.forEach((symptom, idx) => {
-        const card = document.createElement('div');
-        card.className = "p-3.5 bg-slate-50 hover:bg-slate-100/70 transition rounded-xl border border-slate-200";
-
-        const textLabel = currentLang === 'ko' ? symptom.ko : symptom.en;
-        const currentVal = symptomScores[symptom.id] || 0;
-
-        let buttonsHtml = '';
-        for (let score = 0; score <= 6; score++) {
-          const isSelected = currentVal === score;
-          let activeClass = isSelected
-            ? (score === 0 ? 'bg-slate-700 text-white font-bold' : 'bg-emerald-600 text-white font-bold shadow-xs')
-            : 'bg-white hover:bg-slate-200 text-slate-700 border border-slate-200';
-
-          buttonsHtml += `
-            <button type="button" onclick="setSymptomScore('${symptom.id}', ${score})" 
-              class="w-8 h-8 rounded-lg text-xs font-semibold flex items-center justify-center transition ${activeClass}">
-              ${score}
-            </button>
-          `;
-        }
-
-        card.innerHTML = `
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-800">${idx + 1}. ${textLabel}</span>
-            <span class="text-xs font-bold ${currentVal > 0 ? 'text-emerald-600' : 'text-slate-400'}">
-              ${currentVal} / 6
-            </span>
+    // Render Symptoms Grid
+    function renderSymptoms() {
+      const container = document.getElementById('symptoms-grid');
+      container.innerHTML = symptomList.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-slate-50 rounded border gap-2">
+          <span class="text-xs font-medium text-slate-800">${idx + 1}. ${item[currentLang]}</span>
+          <div class="flex items-center space-x-1">
+            ${[0,1,2,3,4,5,6].map(num => `
+              <button onclick="setSymptomScore('${item.id}',${num})" 
+                id="btn-${item.id}-${num}" 
+                class="symp-btn-${item.id} w-7 h-7 text-xs rounded font-bold border transition bg-white text-slate-700 border-slate-300 hover:bg-indigo-50">
+                ${num}
+              </button>
+            `).join('')}
           </div>
-          <div class="flex items-center space-x-1.5 overflow-x-auto py-1">
-            ${buttonsHtml}
-          </div>
-        `;
-        container.appendChild(card);
+        </div>
+      `).join('');
+    }
+
+    let symptomScores = {};
+    function setSymptomScore(sympId, val) {
+      symptomScores[sympId] = val;
+      document.querySelectorAll(`.symp-btn-${sympId}`).forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+        btn.classList.add('bg-white', 'text-slate-700');
       });
-    }
-
-    function setSymptomScore(symptomId, score) {
-      symptomScores[symptomId] = score;
-      renderSymptomsGrid();
-      updateAllCalculations();
-    }
-
-    function setOrientation(index, val) {
-      orientationScores[index] = val;
-      for (let i = 0; i <= 1; i++) {
-        const btn = document.getElementById(`orient-${index}-${i}`);
-        if (btn) {
-          if (i === val) {
-            btn.className = "flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs";
-          } else {
-            btn.className = "flex-1 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-center font-bold";
-          }
-        }
+      const activeBtn = document.getElementById(`btn-${sympId}-${val}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
       }
-      updateAllCalculations();
+      calcSymptoms();
     }
 
-    function changeWordList(listKey) {
-      currentWordListKey = listKey;
-      stopAudioPlayback();
-      // Reset memory selections on list change to ensure accurate scoring
-      immediateMemory = [Array(10).fill(false), Array(10).fill(false), Array(10).fill(false)];
-      delayedMemory = Array(10).fill(false);
-      renderImmediateMemoryWords();
-      renderDelayedRecallWords();
-      updateAllCalculations();
+    function calcSymptoms() {
+      const scores = Object.values(symptomScores);
+      const count = scores.filter(s => s > 0).length;
+      const severity = scores.reduce((a, b) => a + b, 0);
+
+      document.getElementById('symp-total-display').textContent = count;
+      document.getElementById('sev-total-display').textContent = severity;
+      document.getElementById('nav-score-symp').textContent = `${count}/22`;
+      document.getElementById('nav-score-sev').textContent = `${severity}/132`;
     }
 
-    function renderImmediateMemoryWords() {
-      const words = WORD_LISTS[currentWordListKey];
-      [0, 1, 2].forEach(trialIdx => {
-        const container = document.getElementById(`trial-words-${trialIdx + 1}`);
-        if (!container) return;
-        container.innerHTML = '';
-
-        words.forEach((wordObj, wordIdx) => {
-          const isRecalled = immediateMemory[trialIdx][wordIdx];
-          const label = currentLang === 'ko' ? wordObj.ko : wordObj.en;
-          const secondary = currentLang === 'ko' ? wordObj.en : wordObj.ko;
-
-          const row = document.createElement('div');
-          row.id = `trial-${trialIdx}-word-${wordIdx}`;
-          row.className = `w-full rounded-lg text-xs font-semibold flex items-center justify-between p-1 transition border ${
-            isRecalled 
-              ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs' 
-              : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-          }`;
-
-          // Word selection toggle button
-          const mainBtn = document.createElement('button');
-          mainBtn.type = 'button';
-          mainBtn.onclick = () => toggleImmediateWord(trialIdx, wordIdx);
-          mainBtn.className = "flex-1 text-left px-2 py-1 flex items-center justify-between";
-          mainBtn.innerHTML = `
-            <span>${wordIdx + 1}. ${label}</span>
-            <span class="text-[10px] opacity-75 font-normal ml-1">(${secondary})</span>
-          `;
-
-          // Dual-language audio play buttons
-          const audioBtns = document.createElement('div');
-          audioBtns.className = "flex items-center space-x-1 shrink-0 px-1";
-          audioBtns.innerHTML = `
-            <button type="button" title="Listen English" onclick="event.stopPropagation(); speakWord('${wordObj.en}', 'en')" 
-              class="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold">
-              EN
-            </button>
-            <button type="button" title="Listen Korean" onclick="event.stopPropagation(); speakWord('${wordObj.ko}', 'ko')" 
-              class="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold">
-              한
-            </button>
-          `;
-
-          row.appendChild(mainBtn);
-          row.appendChild(audioBtns);
-          container.appendChild(row);
-        });
-      });
+    // Render Words
+    function renderWords() {
+      const container = document.getElementById('words-container');
+      container.innerHTML = wordList.map((w, idx) => `
+        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-2 rounded text-center text-xs font-semibold flex justify-between items-center">
+          <span>${idx + 1}. ${w[currentLang]}</span>
+          <button onclick="speakWord('${w[currentLang]}')" class="no-print text-xs hover:scale-110">🔊</button>
+        </div>
+      `).join('');
     }
 
-    function toggleImmediateWord(trialIdx, wordIdx) {
-      immediateMemory[trialIdx][wordIdx] = !immediateMemory[trialIdx][wordIdx];
-      renderImmediateMemoryWords();
-      updateAllCalculations();
-    }
-
-    function renderDelayedRecallWords() {
-      const container = document.getElementById('delayed-words-container');
-      if (!container) return;
-      container.innerHTML = '';
-      const words = WORD_LISTS[currentWordListKey];
-
-      words.forEach((wordObj, wordIdx) => {
-        const isRecalled = delayedMemory[wordIdx];
-        const label = currentLang === 'ko' ? wordObj.ko : wordObj.en;
-        const secondary = currentLang === 'ko' ? wordObj.en : wordObj.ko;
-
-        const row = document.createElement('div');
-        row.className = `w-full rounded-lg text-xs font-semibold flex items-center justify-between p-1 transition border ${
-          isRecalled 
-            ? 'bg-amber-600 text-white border-amber-700 shadow-xs' 
-            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-        }`;
-
-        const mainBtn = document.createElement('button');
-        mainBtn.type = 'button';
-        mainBtn.onclick = () => toggleDelayedWord(wordIdx);
-        mainBtn.className = "flex-1 text-left px-2 py-1 flex items-center justify-between";
-        mainBtn.innerHTML = `
-          <span>${wordIdx + 1}. ${label}</span>
-          <span class="text-[10px] opacity-75 font-normal ml-1">(${secondary})</span>
-        `;
-
-        const audioBtns = document.createElement('div');
-        audioBtns.className = "flex items-center space-x-1 shrink-0 px-1";
-        audioBtns.innerHTML = `
-          <button type="button" title="Listen English" onclick="event.stopPropagation(); speakWord('${wordObj.en}', 'en')" 
-            class="px-1.5 py-0.5 rounded text-[10px] bg-white hover:bg-slate-200 text-slate-800 font-bold border border-slate-200">
-            EN
-          </button>
-          <button type="button" title="Listen Korean" onclick="event.stopPropagation(); speakWord('${wordObj.ko}', 'ko')" 
-            class="px-1.5 py-0.5 rounded text-[10px] bg-white hover:bg-slate-200 text-slate-800 font-bold border border-slate-200">
-            한
-          </button>
-        `;
-
-        row.appendChild(mainBtn);
-        row.appendChild(audioBtns);
-        container.appendChild(row);
-      });
-    }
-
-    /* Text-to-Speech Annotation for Single Word */
-    function speakWord(text, langCode) {
-      if (!('speechSynthesis' in window)) {
-        openModal("Audio", "Speech synthesis is not supported on this browser.");
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = langCode === 'ko' ? 'ko-KR' : 'en-US';
-      utterance.rate = 0.9; // natural, clear clinical articulation
-      window.speechSynthesis.speak(utterance);
-    }
-
-    /* Paced Readout at 1 word per second according to SCOAT6 protocol */
-    function playPacedWordList(langCode) {
-      stopAudioPlayback();
-      const words = WORD_LISTS[currentWordListKey];
-      if (!words || words.length === 0) return;
-
-      isPacedPlaying = true;
-      const indicator = document.getElementById('audio-status-indicator');
-      const stopBtn = document.getElementById('btn-stop-audio');
-      if (indicator) {
-        indicator.innerText = langCode === 'ko' ? '한국어 재생 중 (1초 간격)...' : 'Playing English (1 word/sec)...';
-        indicator.classList.remove('hidden');
-      }
-      if (stopBtn) stopBtn.classList.remove('hidden');
-
-      let index = 0;
-      function speakNext() {
-        if (!isPacedPlaying || index >= words.length) {
-          stopAudioPlayback();
-          return;
-        }
-
-        const wordObj = words[index];
-        const textToSpeak = langCode === 'ko' ? wordObj.ko : wordObj.en;
-        speakWord(textToSpeak, langCode);
-
-        // Highlight currently spoken word across all trials
-        highlightSpokenWord(index);
-
-        index++;
-        currentPacedTimeout = setTimeout(speakNext, 1100); // 1-second pacing interval
-      }
-
-      speakNext();
-    }
-
-    function highlightSpokenWord(wordIdx) {
-      // Remove previous highlights
-      document.querySelectorAll('.spoken-highlight').forEach(el => {
-        el.classList.remove('spoken-highlight', 'ring-2', 'ring-indigo-400', 'bg-indigo-100');
-      });
-
-      // Highlight active word in trial cards
-      [0, 1, 2].forEach(trialIdx => {
-        const item = document.getElementById(`trial-${trialIdx}-word-${wordIdx}`);
-        if (item) {
-          item.classList.add('spoken-highlight', 'ring-2', 'ring-indigo-400');
-        }
-      });
-    }
-
-    function stopAudioPlayback() {
-      isPacedPlaying = false;
-      if (currentPacedTimeout) {
-        clearTimeout(currentPacedTimeout);
-        currentPacedTimeout = null;
-      }
+    function speakWord(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+        synth.speak(utter);
       }
-      const indicator = document.getElementById('audio-status-indicator');
-      const stopBtn = document.getElementById('btn-stop-audio');
-      if (indicator) indicator.classList.add('hidden');
-      if (stopBtn) stopBtn.classList.add('hidden');
+    }
 
-      // Clear highlights
-      document.querySelectorAll('.spoken-highlight').forEach(el => {
-        el.classList.remove('spoken-highlight', 'ring-2', 'ring-indigo-400', 'bg-indigo-100');
+    function playPacedAudio(lang) {
+      if (!('speechSynthesis' in window)) return;
+      const synth = window.speechSynthesis;
+      synth.cancel();
+
+      wordList.forEach((w, idx) => {
+        const utter = new SpeechSynthesisUtterance(w[lang]);
+        utter.lang = lang === 'ko' ? 'ko-KR' : 'en-US';
+        utter.rate = 0.9;
+        synth.speak(utter);
       });
     }
 
-    /* Voice Recording Annotation for Athlete Recall */
-    async function toggleVoiceAnnotation(trialKey) {
-      const btn = document.getElementById(`btn-record-${trialKey}`);
-      const label = document.getElementById(`label-record-${trialKey}`);
+    // Cognitive Calculations
+    function calcCog() {
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
 
-      if (mediaRecorders[trialKey] && mediaRecorders[trialKey].state === 'recording') {
-        // Stop recording
-        mediaRecorders[trialKey].stop();
-        if (label) label.innerText = currentLang === 'ko' ? "음성 녹음" : "Record Athlete";
-        if (btn) btn.className = "px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center space-x-1";
-      } else {
-        // Start recording
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          audioChunks[trialKey] = [];
-          const recorder = new MediaRecorder(stream);
-
-          recorder.ondataavailable = e => {
-            if (e.data.size > 0) audioChunks[trialKey].push(e.data);
-          };
-
-          recorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks[trialKey], { type: 'audio/webm' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const playerContainer = document.getElementById(`audio-player-${trialKey}`);
-            if (playerContainer) {
-              playerContainer.innerHTML = `
-                <div class="flex items-center space-x-1.5 mt-1">
-                  <audio controls class="h-6 w-36 scale-90 origin-left" src="${audioUrl}"></audio>
-                  <span class="text-[10px] text-emerald-600 font-bold">Saved</span>
-                </div>
-              `;
-              playerContainer.classList.remove('hidden');
-            }
-            // Stop tracks
-            stream.getTracks().forEach(track => track.stop());
-          };
-
-          mediaRecorders[trialKey] = recorder;
-          recorder.start();
-
-          if (label) label.innerText = currentLang === 'ko' ? "녹음 중지" : "Stop Recording";
-          if (btn) btn.className = "px-2 py-1 rounded bg-rose-600 text-white font-bold animate-pulse flex items-center space-x-1";
-
-        } catch (err) {
-          openModal("Microphone Access", currentLang === 'ko' ? "마이크 권한이 필요합니다." : "Microphone permission is required for audio recording.");
-        }
-      }
+      let total = orient + t1 + t2 + t3 + delayed;
+      document.getElementById('nav-score-cog').textContent = `${total}/50`;
     }
 
-    /* Toggle test content panels beneath player instructions */
-    function toggleTestVisibility(panelId, buttonEl) {
-      const panel = document.getElementById(panelId);
-      if (!panel) return;
-
-      const isHidden = panel.classList.contains('hidden');
-      if (isHidden) {
-        panel.classList.remove('hidden');
-        buttonEl.setAttribute('data-revealed', 'true');
-      } else {
-        panel.classList.add('hidden');
-        buttonEl.setAttribute('data-revealed', 'false');
-      }
-      updateToggleButtonText(buttonEl);
+    // mBESS Balance Controls
+    function adjErr(type, delta) {
+      mbessErrors[type] = Math.max(0, Math.min(10, mbessErrors[type] + delta));
+      document.getElementById(`err-${type}`).textContent = mbessErrors[type];
+      
+      let total = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('mbess-total-display').textContent = `${total} / 30`;
     }
 
-    function updateToggleButtonText(buttonEl) {
-      const isRevealed = buttonEl.getAttribute('data-revealed') === 'true';
-      const labelSpan = buttonEl.querySelector('.btn-label');
-      const targetId = buttonEl.getAttribute('data-target');
-
-      // Customize labels per specific test section
-      let revealLabelEn = "Reveal Test";
-      let hideLabelEn = "Hide Test";
-      let revealLabelKo = "검사 항목 열기";
-      let hideLabelKo = "검사 항목 숨기기";
-
-      if (targetId === 'symptoms-content-panel') {
-        revealLabelEn = "Reveal Symptom Test";
-        revealLabelKo = "증상 평가 항목 열기";
-      } else if (targetId === 'orientation-content-panel') {
-        revealLabelEn = "Reveal Orientation Questions";
-        revealLabelKo = "지남력 질문 열기";
-      } else if (targetId === 'immediate-memory-content-panel') {
-        revealLabelEn = "Reveal Word Lists & Audio";
-        revealLabelKo = "단어 목록 및 음성 검사 열기";
-      } else if (targetId === 'digits-content-panel') {
-        revealLabelEn = "Reveal Digits Test";
-        revealLabelKo = "숫자 역순 검사 열기";
-      } else if (targetId === 'months-content-panel') {
-        revealLabelEn = "Reveal Scoring Buttons";
-        revealLabelKo = "채점 버튼 열기";
-      } else if (targetId === 'delayed-content-panel') {
-        revealLabelEn = "Reveal Delayed Recall Words";
-        revealLabelKo = "지연 회상 단어 열기";
-      } else if (targetId === 'mbess-content-panel') {
-        revealLabelEn = "Reveal Balance Stances";
-        revealLabelKo = "균형 검사 자세 열기";
-      }
-
-      if (labelSpan) {
-        if (isRevealed) {
-          labelSpan.setAttribute('data-en', hideLabelEn);
-          labelSpan.setAttribute('data-ko', hideLabelKo);
-          labelSpan.innerText = currentLang === 'ko' ? hideLabelKo : hideLabelEn;
-        } else {
-          labelSpan.setAttribute('data-en', revealLabelEn);
-          labelSpan.setAttribute('data-ko', revealLabelKo);
-          labelSpan.innerText = currentLang === 'ko' ? revealLabelKo : revealLabelEn;
-        }
-      }
+    // Toggle Instruction Visibility
+    function toggleInstructions(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
     }
 
-    function toggleDelayedWord(wordIdx) {
-      delayedMemory[wordIdx] = !delayedMemory[wordIdx];
-      renderDelayedRecallWords();
-      updateAllCalculations();
-    }
-
-    function setDigitItem(levelIdx, score) {
-      digitScores[levelIdx] = score;
-      const failBtn = document.getElementById(`digit-btn-${levelIdx}-0`);
-      const passBtn = document.getElementById(`digit-btn-${levelIdx}-1`);
-      if (score === 1) {
-        passBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold shadow-xs";
-        failBtn.className = "px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold";
-      } else {
-        failBtn.className = "px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold";
-        passBtn.className = "px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold";
-      }
-      updateAllCalculations();
-    }
-
-    function setMonthsScore(val) {
-      monthsReverseScore = val;
-      const b0 = document.getElementById('months-btn-0');
-      const b1 = document.getElementById('months-btn-1');
-      if (val === 1) {
-        b1.className = "flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-xs";
-        b0.className = "flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs";
-      } else {
-        b0.className = "flex-1 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-bold text-xs";
-        b1.className = "flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs";
-      }
-      updateAllCalculations();
-    }
-
-    function updateMbess(stanceIdx, delta) {
-      let nextVal = mbessErrors[stanceIdx] + delta;
-      if (nextVal < 0) nextVal = 0;
-      if (nextVal > 10) nextVal = 10; // SCOAT6 caps each stance at 10 max
-      mbessErrors[stanceIdx] = nextVal;
-      document.getElementById(`mbess-val-${stanceIdx}`).innerText = nextVal;
-      updateAllCalculations();
-    }
-
-    /* Real-time score aggregator */
-    function updateAllCalculations() {
-      // 1. Symptoms
-      let sympCount = 0;
-      let sympScore = 0;
-      for (let sId in symptomScores) {
-        const val = symptomScores[sId];
-        if (val > 0) {
-          sympCount++;
-          sympScore += val;
-        }
-      }
-
-      document.getElementById('symp-count-display').innerText = sympCount;
-      document.getElementById('symp-score-display').innerText = sympScore;
-      document.getElementById('pill-symptom-count').innerText = `${sympCount}/22`;
-      document.getElementById('pill-symptom-score').innerText = `${sympScore}/132`;
-
-      // 2. Orientation
-      const orientTotal = orientationScores.reduce((a, b) => a + b, 0);
-      document.getElementById('orientation-score-badge').innerText = orientTotal;
-
-      // 3. Immediate Memory
-      const trial1 = immediateMemory[0].filter(Boolean).length;
-      const trial2 = immediateMemory[1].filter(Boolean).length;
-      const trial3 = immediateMemory[2].filter(Boolean).length;
-      document.getElementById('trial-score-1').innerText = `${trial1} / 10`;
-      document.getElementById('trial-score-2').innerText = `${trial2} / 10`;
-      document.getElementById('trial-score-3').innerText = `${trial3} / 10`;
-      const immediateTotal = trial1 + trial2 + trial3;
-      document.getElementById('immediate-total-display').innerText = immediateTotal;
-
-      // 4. Digits & Months
-      const digitsTotal = digitScores.reduce((a, b) => a + b, 0);
-      document.getElementById('digits-score-display').innerText = digitsTotal;
-      document.getElementById('months-score-display').innerText = monthsReverseScore;
-
-      // 5. Delayed Recall
-      const delayedTotal = delayedMemory.filter(Boolean).length;
-      document.getElementById('delayed-score-display').innerText = delayedTotal;
-
-      // Total Cognitive = Orientation (5) + Immediate (30) + Digits (4) + Months (1) + Delayed (10) = 50 total SCOAT6 cognitive domain
-      // For immediate assessment summary without delay, standard score is 40. With delay it's 50. SCOAT6 lists full battery.
-      const cogTotal = orientTotal + immediateTotal + digitsTotal + monthsReverseScore;
-      document.getElementById('pill-cog-score').innerText = `${cogTotal}/40`;
-
-      // 6. mBESS Errors Total
-      const mbessTotal = mbessErrors.reduce((a, b) => a + b, 0);
-      document.getElementById('mbess-total-errors').innerText = mbessTotal;
-    }
-
-    function generateReport() {
-      // Gather inputs
-      const athleteName = document.getElementById('athlete-name').value.trim() || 'Not specified';
-      const athleteDob = document.getElementById('athlete-dob').value.trim() || 'Not specified';
-      const athleteSport = document.getElementById('athlete-sport').value.trim() || 'Not specified';
-      const pastConc = document.getElementById('past-concussions').value || '0';
-      const evaluator = document.getElementById('evaluator-name').value.trim() || 'Not specified';
-      const evalDate = document.getElementById('eval-date').value || new Date().toISOString().split('T')[0];
-
-      // Update Report Header
-      document.getElementById('rep-name').innerText = athleteName;
-      document.getElementById('rep-dob').innerText = athleteDob;
-      document.getElementById('rep-sport').innerText = athleteSport;
-      document.getElementById('rep-past-conc').innerText = pastConc;
-      document.getElementById('rep-evaluator').innerText = evaluator;
-      document.getElementById('rep-date').innerText = evalDate;
+    // Update Report Tab Content
+    function updateReport() {
+      document.getElementById('rep-gen-date').textContent = new Date().toLocaleDateString();
+      document.getElementById('rep-lang-indicator').textContent = currentLang === 'en' ? 'English' : '한국어';
+      
+      document.getElementById('rep-name').textContent = document.getElementById('input-name').value || '--';
+      document.getElementById('rep-dob').textContent = document.getElementById('input-dob').value || '--';
+      document.getElementById('rep-sport').textContent = document.getElementById('input-sport').value || '--';
+      document.getElementById('rep-examiner').textContent = document.getElementById('input-examiner').value || '--';
 
       // Scores
-      let sympCount = 0;
-      let sympScore = 0;
-      let activeList = [];
+      const scores = Object.values(symptomScores);
+      document.getElementById('rep-symp-num').textContent = scores.filter(s => s > 0).length;
+      document.getElementById('rep-symp-sev').textContent = scores.reduce((a, b) => a + b, 0);
 
-      SCOAT_SYMPTOMS.forEach(s => {
-        const val = symptomScores[s.id];
-        if (val > 0) {
-          sympCount++;
-          sympScore += val;
-          const sName = currentLang === 'ko' ? s.ko : s.en;
-          activeList.push(`${sName} (${val})`);
-        }
-      });
+      const rfChecked = document.querySelectorAll('.rf-check:checked').length;
+      document.getElementById('rep-rf-status').textContent = rfChecked > 0 ? 'POSITIVE (CRITICAL)' : 'Negative';
+      document.getElementById('rep-rf-status').className = rfChecked > 0 ? 'p-2 border font-bold text-red-600' : 'p-2 border font-bold text-emerald-600';
 
-      document.getElementById('rep-symp-count').innerText = sympCount;
-      document.getElementById('rep-symp-score').innerText = sympScore;
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      document.getElementById('rep-cog-score').textContent = orient + t1 + t2 + t3 + delayed;
 
-      // Cognitive Breakdowns
-      const orientTotal = orientationScores.reduce((a, b) => a + b, 0);
-      const trial1 = immediateMemory[0].filter(Boolean).length;
-      const trial2 = immediateMemory[1].filter(Boolean).length;
-      const trial3 = immediateMemory[2].filter(Boolean).length;
-      const immediateTotal = trial1 + trial2 + trial3;
-      const digitsTotal = digitScores.reduce((a, b) => a + b, 0);
-      const delayedTotal = delayedMemory.filter(Boolean).length;
-
-      document.getElementById('rep-cog-orient').innerText = `${orientTotal} / 5`;
-      document.getElementById('rep-cog-immed').innerText = `${immediateTotal} / 30`;
-      document.getElementById('rep-cog-digits').innerText = `${digitsTotal} / 4`;
-      document.getElementById('rep-cog-months').innerText = `${monthsReverseScore} / 1`;
-      document.getElementById('rep-cog-delayed').innerText = `${delayedTotal} / 10`;
-
-      const totalCog = orientTotal + immediateTotal + digitsTotal + monthsReverseScore;
-      document.getElementById('rep-cog-total').innerText = `${totalCog}`;
-
-      // Balance
-      document.getElementById('rep-mbess-double').innerText = `${mbessErrors[0]} errors`;
-      document.getElementById('rep-mbess-single').innerText = `${mbessErrors[1]} errors`;
-      document.getElementById('rep-mbess-tandem').innerText = `${mbessErrors[2]} errors`;
-      const mbessTotal = mbessErrors.reduce((a, b) => a + b, 0);
-      document.getElementById('rep-mbess-total').innerText = `${mbessTotal}`;
-
-      // Active symptoms pills in summary
-      const sympTagContainer = document.getElementById('rep-active-symptoms');
-      if (activeList.length === 0) {
-        sympTagContainer.innerHTML = `<span class="text-slate-400 italic">${currentLang === 'ko' ? '보고된 증상 없음' : 'No symptoms endorsed'}</span>`;
-      } else {
-        sympTagContainer.innerHTML = activeList.map(item => `
-          <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-            ${item}
-          </span>
-        `).join('');
-      }
+      let mbessTotal = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('rep-mbess-score').textContent = mbessTotal;
     }
 
-    /* Clipboard Copy for Medical Charting */
-    function copySummaryText() {
-      generateReport();
-      const athleteName = document.getElementById('athlete-name').value.trim() || 'Athlete';
-      const evalDate = document.getElementById('eval-date').value || new Date().toISOString().split('T')[0];
-      const sympCount = document.getElementById('rep-symp-count').innerText;
-      const sympScore = document.getElementById('rep-symp-score').innerText;
-      const cogTotal = document.getElementById('rep-cog-total').innerText;
-      const delayed = document.getElementById('rep-cog-delayed').innerText;
-      const mbessTotal = document.getElementById('rep-mbess-total').innerText;
-
-      const summaryText = `[SCOAT6 Concussion Office Evaluation Summary]
-Date: ${evalDate}
-Athlete: ${athleteName}
-----------------------------------------
-- Total Symptoms: ${sympCount} / 22
-- Symptom Severity Score: ${sympScore} / 132
-- Orientation: ${document.getElementById('rep-cog-orient').innerText}
-- Immediate Memory (3 trials): ${document.getElementById('rep-cog-immed').innerText}
-- Digits Backwards: ${document.getElementById('rep-cog-digits').innerText}
-- Months in Reverse: ${document.getElementById('rep-cog-months').innerText}
-- Delayed Recall: ${delayed}
-- Cognitive Total (Orientation+Memory+Concentration): ${cogTotal}/40
-- mBESS Balance Errors: ${mbessTotal} / 30
-----------------------------------------
-Recommendation: Athlete requires clinical follow-up and gradual return to play.`;
-
-      // Copy using document.execCommand fallback
-      const textArea = document.createElement("textarea");
-      textArea.value = summaryText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        openModal(
-          currentLang === 'ko' ? "복사 완료" : "Copied to Clipboard",
-          currentLang === 'ko' ? "의무 기록용 텍스트 요약본이 클립보드에 복사되었습니다." : "SCOAT6 assessment summary copied for medical charting."
-        );
-      } catch (err) {
-        openModal("Notice", "Unable to copy text directly.");
-      }
-      document.body.removeChild(textArea);
-    }
-
-    /* Dual Language Switcher */
-    function setLanguage(lang) {
-      currentLang = lang;
+    // PDF Download Function
+    function downloadPDF() {
+      updateReport();
+      const element = document.getElementById('pdf-report-content');
+      const name = document.getElementById('input-name').value.trim() || 'Athlete';
+      const date = new Date().toISOString().slice(0, 10);
       
-      // Update buttons
-      const btnEn = document.getElementById('lang-en');
-      const btnKo = document.getElementById('lang-ko');
-      if (lang === 'en') {
-        btnEn.className = "px-3 py-1 rounded-lg transition-all shadow-sm bg-white text-slate-900";
-        btnKo.className = "px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition-all";
-      } else {
-        btnKo.className = "px-3 py-1 rounded-lg transition-all shadow-sm bg-white text-slate-900";
-        btnEn.className = "px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition-all";
-      }
+      const opt = {
+        margin:       0.5,
+        filename:     `SCOAT6_Report_${name}_${date}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
 
-      // Update text in DOM with data-en and data-ko attributes
-      document.querySelectorAll('[data-en]').forEach(el => {
-        const text = el.getAttribute(`data-${lang}`);
-        if (text) {
-          el.innerText = text;
-        }
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Copy Text to EMR
+    function copyEMRText() {
+      updateReport();
+      const name = document.getElementById('input-name').value || 'N/A';
+      const dob = document.getElementById('input-dob').value || 'N/A';
+      const evalDate = document.getElementById('input-eval-date').value || 'N/A';
+      const sympNum = document.getElementById('rep-symp-num').textContent;
+      const sympSev = document.getElementById('rep-symp-sev').textContent;
+      const cog = document.getElementById('rep-cog-score').textContent;
+      const mbess = document.getElementById('rep-mbess-score').textContent;
+
+      const emrText = `=== SCOAT6 CLINICAL EVALUATION REPORT ===\nAthlete: ${name} (DOB: ${dob})\nAssessment Date: ${evalDate}\nRed Flags: ${document.getElementById('rep-rf-status').textContent}\nTotal Symptoms: ${sympNum}/22\nSymptom Severity: ${sympSev}/132\nCognitive Score: ${cog}/50\nmBESS Balance Errors: ${mbess}/30\n==========================================`;
+
+      navigator.clipboard.writeText(emrText).then(() => {
+        alert('EMR summary copied to clipboard!');
       });
-
-      // Synchronize all toggle button state texts
-      document.querySelectorAll('.toggle-section-btn').forEach(btn => {
-        updateToggleButtonText(btn);
-      });
-
-      // Re-render language-dependent components
-      renderSymptomsGrid();
-      renderImmediateMemoryWords();
-      renderDelayedRecallWords();
-      generateReport();
-    }
-
-    /* Reset All Assessment Data */
-    function resetAllAssessments() {
-      openModal(
-        currentLang === 'ko' ? "초기화 확인" : "Reset Data",
-        currentLang === 'ko' ? "모든 점수와 선수 정보가 초기화되었습니다." : "All evaluation fields and scores have been reset to zero."
-      );
-      SCOAT_SYMPTOMS.forEach(s => symptomScores[s.id] = 0);
-      orientationScores = [1, 1, 1, 1, 1];
-      immediateMemory = [Array(10).fill(false), Array(10).fill(false), Array(10).fill(false)];
-      digitScores = [0, 0, 0, 0];
-      monthsReverseScore = 0;
-      delayedMemory = Array(10).fill(false);
-      mbessErrors = [0, 0, 0];
-      stopAudioPlayback();
-
-      document.querySelectorAll('.red-flag-checkbox').forEach(cb => cb.checked = false);
-      checkRedFlags();
-
-      // Reset digit buttons UI
-      for (let i = 0; i < 4; i++) setDigitItem(i, 0);
-      setMonthsScore(0);
-      for (let i = 0; i < 5; i++) setOrientation(i, 1);
-
-      document.getElementById('mbess-val-0').innerText = 0;
-      document.getElementById('mbess-val-1').innerText = 0;
-      document.getElementById('mbess-val-2').innerText = 0;
-
-      renderSymptomsGrid();
-      renderImmediateMemoryWords();
-      renderDelayedRecallWords();
-      updateAllCalculations();
-    }
-
-    /* Modal Utility */
-    function openModal(title, message) {
-      document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-body').innerText = message;
-      document.getElementById('app-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('app-modal').classList.add('hidden');
     }
   </script>
 </body>
