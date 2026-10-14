@@ -44,7 +44,7 @@
         </div>
         <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
           <span class="text-slate-400 block text-[10px]" data-i18n="navCog">Cognitive</span>
-          <span id="nav-score-cog" class="font-bold text-emerald-400">0/50</span>
+          <span id="nav-score-cog" class="font-bold text-emerald-400">0/55</span>
         </div>
       </div>
 
@@ -78,11 +78,12 @@
 
     <!-- NAVIGATION TABS -->
     <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-3 no-print">
-      <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-indigo-600 text-white shadow" data-i18n="tabProfile">1. Athlete & Injury Profile</button>
-      <button onclick="switchTab('symptoms')" id="tab-symptoms" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabSymptoms">2. Serial Symptoms</button>
-      <button onclick="switchTab('cognitive')" id="tab-cognitive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabCognitive">3. Follow-up Cognitive</button>
-      <button onclick="switchTab('rtp')" id="tab-rtp" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabRtp">4. Return-to-Play Progression</button>
-      <button onclick="switchTab('report')" id="tab-report" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabReport">5. Comparison & Report</button>
+      <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-indigo-600 text-white shadow" data-i18n="tabProfile">1. Profile & Info</button>
+      <button onclick="switchTab('symptoms')" id="tab-symptoms" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabSymptoms">2. Symptoms (22)</button>
+      <button onclick="switchTab('cognitive')" id="tab-cognitive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabCognitive">3. Cognitive Battery</button>
+      <button onclick="switchTab('gait')" id="tab-gait" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabGait">4. mBESS & Tandem Gait</button>
+      <button onclick="switchTab('rtp')" id="tab-rtp" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabRtp">5. Return-to-Play</button>
+      <button onclick="switchTab('report')" id="tab-report" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabReport">6. Clinical Report</button>
     </div>
 
     <!-- TAB 1: PROFILE & INJURY TIMELINE -->
@@ -133,7 +134,7 @@
           </div>
           <div>
             <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseCog">Baseline Cognitive Score</label>
-            <input type="number" min="0" max="50" value="45" id="base-cog-score" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
+            <input type="number" min="0" max="55" value="50" id="base-cog-score" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
           </div>
           <div>
             <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseMbess">Baseline mBESS Errors</label>
@@ -172,7 +173,7 @@
       </div>
     </section>
 
-    <!-- TAB 3: FOLLOW-UP COGNITIVE -->
+    <!-- TAB 3: FOLLOW-UP COGNITIVE BATTERY -->
     <section id="sec-cognitive" class="tab-content hidden space-y-6">
       
       <!-- Orientation -->
@@ -233,9 +234,70 @@
         </div>
       </div>
 
+      <!-- Digits Backwards -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="digitsTitle">3. Digits Backwards (/4)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="digitsSub">Read string DOWN at 1 digit/sec. If successful, advance string length. If failed, read alternate string of same length. If failed twice, stop test.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+          <div class="bg-slate-50 p-3 rounded border">
+            <span class="font-bold block text-slate-700" data-i18n="dig3">3 Digits (4-9-3 or 5-2-6)</span>
+            <select id="dig-score-3" onchange="calcCog()" class="w-full mt-2 p-1.5 border rounded bg-white">
+              <option value="0">Incorrect / Unattempted (0)</option>
+              <option value="1">Correct (1)</option>
+            </select>
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <span class="font-bold block text-slate-700" data-i18n="dig4">4 Digits (3-8-1-4 or 1-7-9-5)</span>
+            <select id="dig-score-4" onchange="calcCog()" class="w-full mt-2 p-1.5 border rounded bg-white">
+              <option value="0">Incorrect / Unattempted (0)</option>
+              <option value="1">Correct (1)</option>
+            </select>
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <span class="font-bold block text-slate-700" data-i18n="dig5">5 Digits (6-2-9-7-1 or 4-8-5-2-7)</span>
+            <select id="dig-score-5" onchange="calcCog()" class="w-full mt-2 p-1.5 border rounded bg-white">
+              <option value="0">Incorrect / Unattempted (0)</option>
+              <option value="1">Correct (1)</option>
+            </select>
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <span class="font-bold block text-slate-700" data-i18n="dig6">6 Digits (7-1-8-4-6-2 or 8-3-1-9-6-4)</span>
+            <select id="dig-score-6" onchange="calcCog()" class="w-full mt-2 p-1.5 border rounded bg-white">
+              <option value="0">Incorrect / Unattempted (0)</option>
+              <option value="1">Correct (1)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Months in Reverse Order -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="monthsTitle">4. Months in Reverse Order (/1)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="monthsSub">Say "Tell me the months of the year in reverse order as QUICKLY and accurately as possible starting with December." Normal completion time is under 30 seconds.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="lblTimeSec">Time Taken (seconds):</label>
+            <input type="number" min="0" id="months-time" class="w-full p-2 border rounded" placeholder="e.g. 14">
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="lblErrorNum">Number of Errors:</label>
+            <input type="number" min="0" id="months-errors" value="0" class="w-full p-2 border rounded">
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="lblMonthsScore">Months Score (/1):</label>
+            <select id="months-score" onchange="calcCog()" class="w-full p-2 border rounded bg-white font-bold text-indigo-700">
+              <option value="1">Passed (1 pt - Correct & &lt;30s)</option>
+              <option value="0">Failed (0 pt - Errors or &ge;30s)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Delayed Recall -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
-        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="delMemTitle">3. Delayed Recall (/10)</h3>
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="delMemTitle">5. Delayed Recall (/10)</h3>
         <p class="text-xs text-slate-600 mb-3" data-i18n="delMemSub">Do not read the words again. Ask athlete to recall as many words as possible.</p>
         <div class="flex items-center space-x-3">
           <label class="text-xs font-semibold text-slate-700" data-i18n="delMemScoreLbl">Words Recalled:</label>
@@ -245,7 +307,126 @@
 
     </section>
 
-    <!-- TAB 4: RETURN-TO-PLAY PROGRESSION -->
+    <!-- TAB 4: mBESS BALANCE & GAIT EVALUATION -->
+    <section id="sec-gait" class="tab-content hidden space-y-6">
+      
+      <!-- mBESS Stances -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="mbessTitle">Modified Balance Error Scoring System (mBESS)</h3>
+        <p class="text-xs text-slate-600 mb-4" data-i18n="mbessSub">20-second firm surface stance tests with eyes closed and hands on hips. Maximum 10 errors per trial.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance1">Double Leg Stance</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-dl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('dl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('dl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance2">Single Leg Stance (Non-Dominant)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-sl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('sl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('sl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance3">Tandem Stance (Non-Dominant Back)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-tan">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('tan', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('tan', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex justify-between items-center text-xs text-indigo-900">
+          <span class="font-semibold" data-i18n="mbessTotalLbl">Total mBESS Errors:</span>
+          <span id="mbess-total-display" class="text-base font-bold text-indigo-700">0 / 30</span>
+        </div>
+      </div>
+
+      <!-- Timed Tandem Gait -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="tgTitle">Timed Tandem Gait (3-Meter Line)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="tgSub">Walk heel-to-toe quickly to the end of a 3-meter tape line, turn, and walk back as fast as possible without stepping off line.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs mb-4">
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="tgT1">Trial 1 Time (sec):</label>
+            <input type="number" step="0.1" id="tg-t1" onchange="calcGait()" class="w-full p-2 border rounded">
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="tgT2">Trial 2 Time (sec):</label>
+            <input type="number" step="0.1" id="tg-t2" onchange="calcGait()" class="w-full p-2 border rounded">
+          </div>
+          <div class="bg-slate-50 p-3 rounded border">
+            <label class="block font-semibold mb-1" data-i18n="tgT3">Trial 3 Time (sec):</label>
+            <input type="number" step="0.1" id="tg-t3" onchange="calcGait()" class="w-full p-2 border rounded">
+          </div>
+          <div class="bg-indigo-50 p-3 rounded border border-indigo-200 text-indigo-900">
+            <span class="block font-bold" data-i18n="tgFastest">Fastest Trial:</span>
+            <span id="tg-fastest" class="text-lg font-bold text-indigo-700">-- sec</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-lg border text-xs">
+          <strong class="block font-semibold text-slate-800 mb-2" data-i18n="tgObsTitle">Gait Observations / Errors:</strong>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+              <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded"> <span data-i18n="tgObs1">Stepped off line</span>
+            </label>
+            <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+              <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded"> <span data-i18n="tgObs2">Separated feet</span>
+            </label>
+            <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+              <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded"> <span data-i18n="tgObs3">Truncal sway / Unstable</span>
+            </label>
+            <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+              <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded"> <span data-i18n="tgObs4">Dizziness / Nausea</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Complex & Dual-Task Tandem Gait -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="ctgTitle">Complex & Dual-Task Tandem Gait (Optional)</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mt-3">
+          <div class="bg-slate-50 p-3 rounded border space-y-2">
+            <strong class="font-bold text-slate-800 block" data-i18n="ctgFwd">Complex Forward Tandem (5 steps open / 5 steps closed)</strong>
+            <div class="flex justify-between items-center">
+              <span data-i18n="ctgOpen">Eyes Open Points:</span>
+              <input type="number" min="0" max="5" value="0" id="ctg-open-pts" class="w-16 p-1 border rounded text-center font-bold">
+            </div>
+            <div class="flex justify-between items-center">
+              <span data-i18n="ctgClosed">Eyes Closed Points:</span>
+              <input type="number" min="0" max="5" value="0" id="ctg-closed-pts" class="w-16 p-1 border rounded text-center font-bold">
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded border space-y-2">
+            <strong class="font-bold text-slate-800 block" data-i18n="dtGaitTitle">Dual-Task Gait (Walking + Cognitive Task)</strong>
+            <div class="flex justify-between items-center">
+              <span data-i18n="dtTime">Average Time (sec):</span>
+              <input type="number" step="0.1" id="dt-time" class="w-20 p-1 border rounded text-center font-bold">
+            </div>
+            <div class="flex justify-between items-center">
+              <span data-i18n="dtAccuracy">Cognitive Accuracy:</span>
+              <input type="text" placeholder="e.g. 7/8" id="dt-acc" class="w-20 p-1 border rounded text-center font-bold">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 5: RETURN-TO-PLAY PROGRESSION -->
     <section id="sec-rtp" class="tab-content hidden space-y-6">
       
       <!-- Return to Learn -->
@@ -338,7 +519,7 @@
 
     </section>
 
-    <!-- TAB 5: COMPARISON REPORT & EXPORT -->
+    <!-- TAB 6: COMPARISON REPORT & EXPORT -->
     <section id="sec-report" class="tab-content hidden space-y-6">
       
       <!-- Action Buttons -->
@@ -412,11 +593,18 @@
                 <td class="p-2 border" id="rep-s-sev">Baseline level</td>
               </tr>
               <tr>
-                <td class="p-2 border font-medium" data-i18n="rowCog">Cognitive Score (/50)</td>
-                <td class="p-2 border font-bold text-slate-600" id="rep-b-cog">45</td>
+                <td class="p-2 border font-medium" data-i18n="rowCog">Cognitive Score (/55)</td>
+                <td class="p-2 border font-bold text-slate-600" id="rep-b-cog">50</td>
                 <td class="p-2 border font-bold text-emerald-600" id="rep-c-cog">0</td>
-                <td class="p-2 border font-bold" id="rep-d-cog">-45</td>
+                <td class="p-2 border font-bold" id="rep-d-cog">-50</td>
                 <td class="p-2 border" id="rep-s-cog">Below baseline</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowGait">Fastest Tandem Gait Time</td>
+                <td class="p-2 border font-bold text-slate-600">Baseline Ref</td>
+                <td class="p-2 border font-bold text-indigo-600" id="rep-c-gait">-- sec</td>
+                <td class="p-2 border font-bold">--</td>
+                <td class="p-2 border">Functional motor test</td>
               </tr>
             </tbody>
           </table>
@@ -449,6 +637,7 @@
   <!-- JAVASCRIPT LOGIC -->
   <script>
     let currentLang = 'en';
+    let mbessErrors = { dl: 0, sl: 0, tan: 0 };
 
     const translations = {
       en: {
@@ -461,11 +650,12 @@
         modeBaseline: "Baseline SCOAT6",
         modeAcute: "Acute SCOAT6 Clinical",
         modeFollowup: "Follow-up Assessment",
-        tabProfile: "1. Athlete & Injury Profile",
-        tabSymptoms: "2. Serial Symptoms",
-        tabCognitive: "3. Follow-up Cognitive",
-        tabRtp: "4. Return-to-Play Progression",
-        tabReport: "5. Comparison & Report",
+        tabProfile: "1. Profile & Info",
+        tabSymptoms: "2. Symptoms (22)",
+        tabCognitive: "3. Cognitive Battery",
+        tabGait: "4. mBESS & Tandem Gait",
+        tabRtp: "5. Return-to-Play",
+        tabReport: "6. Clinical Report",
         profTitle: "Athlete & Serial Follow-up Profile",
         lblName: "Athlete Full Name",
         lblDob: "Date of Birth",
@@ -499,9 +689,44 @@
         trial1Label: "Trial 1",
         trial2Label: "Trial 2",
         trial3Label: "Trial 3",
-        delMemTitle: "3. Delayed Recall (/10)",
+        digitsTitle: "3. Digits Backwards (/4)",
+        digitsSub: "Read string DOWN at 1 digit/sec. If successful, advance string length. If failed, read alternate string of same length. If failed twice, stop test.",
+        dig3: "3 Digits (4-9-3 or 5-2-6)",
+        dig4: "4 Digits (3-8-1-4 or 1-7-9-5)",
+        dig5: "5 Digits (6-2-9-7-1 or 4-8-5-2-7)",
+        dig6: "6 Digits (7-1-8-4-6-2 or 8-3-1-9-6-4)",
+        monthsTitle: "4. Months in Reverse Order (/1)",
+        monthsSub: "Say \"Tell me the months of the year in reverse order as QUICKLY and accurately as possible starting with December.\" Normal completion time is under 30 seconds.",
+        lblTimeSec: "Time Taken (seconds):",
+        lblErrorNum: "Number of Errors:",
+        lblMonthsScore: "Months Score (/1):",
+        delMemTitle: "5. Delayed Recall (/10)",
         delMemSub: "Do not read the words again. Ask athlete to recall as many words as possible.",
         delMemScoreLbl: "Words Recalled:",
+        mbessTitle: "Modified Balance Error Scoring System (mBESS)",
+        mbessSub: "20-second firm surface stance tests with eyes closed and hands on hips. Maximum 10 errors per trial.",
+        stance1: "Double Leg Stance",
+        stance2: "Single Leg Stance (Non-Dominant)",
+        stance3: "Tandem Stance (Non-Dominant Back)",
+        mbessTotalLbl: "Total mBESS Errors:",
+        tgTitle: "Timed Tandem Gait (3-Meter Line)",
+        tgSub: "Walk heel-to-toe quickly to the end of a 3-meter tape line, turn, and walk back as fast as possible without stepping off line.",
+        tgT1: "Trial 1 Time (sec):",
+        tgT2: "Trial 2 Time (sec):",
+        tgT3: "Trial 3 Time (sec):",
+        tgFastest: "Fastest Trial:",
+        tgObsTitle: "Gait Observations / Errors:",
+        tgObs1: "Stepped off line",
+        tgObs2: "Separated feet",
+        tgObs3: "Truncal sway / Unstable",
+        tgObs4: "Dizziness / Nausea",
+        ctgTitle: "Complex & Dual-Task Tandem Gait (Optional)",
+        ctgFwd: "Complex Forward Tandem (5 steps open / 5 steps closed)",
+        ctgOpen: "Eyes Open Points:",
+        ctgClosed: "Eyes Closed Points:",
+        dtGaitTitle: "Dual-Task Gait (Walking + Cognitive Task)",
+        dtTime: "Average Time (sec):",
+        dtAccuracy: "Cognitive Accuracy:",
         rtlTitle: "Graduated Return-to-Learn (RTL) Progress",
         rtlSub: "Select the current academic stage approved for the athlete:",
         rtl1Title: "Stage 1: Daily Activities at Home (Cognitive Rest)",
@@ -547,7 +772,8 @@
         thStatus: "Recovery Status",
         rowSympNum: "Total Symptoms (/22)",
         rowSympSev: "Symptom Severity (/132)",
-        rowCog: "Cognitive Score (/50)",
+        rowCog: "Cognitive Score (/55)",
+        rowGait: "Fastest Tandem Gait Time",
         repStageHeader: "Current Approved Clearance & Recovery Stages:",
         repRtlLabel: "Return-to-Learn Stage:",
         repRtsLabel: "Return-to-Sport Step:",
@@ -564,11 +790,12 @@
         modeBaseline: "기초 SCOAT6",
         modeAcute: "급성 SCOAT6 임상",
         modeFollowup: "추적 관찰 평가",
-        tabProfile: "1. 선수 및 부상 프로필",
-        tabSymptoms: "2. 연속 증상 평가",
-        tabCognitive: "3. 추적 인지 검사",
-        tabRtp: "4. 단계적 스포츠 복귀",
-        tabReport: "5. 비교 보고서",
+        tabProfile: "1. 프로필 및 정보",
+        tabSymptoms: "2. 증상 평가 (22)",
+        tabCognitive: "3. 인지 기능 검사",
+        tabGait: "4. mBESS 및 탠덤 보행",
+        tabRtp: "5. 스포츠 복귀",
+        tabReport: "6. 임상 보고서",
         profTitle: "선수 및 연속 추적 프로필",
         lblName: "선수 성명",
         lblDob: "생년월일",
@@ -602,9 +829,44 @@
         trial1Label: "1회 차",
         trial2Label: "2회 차",
         trial3Label: "3회 차",
-        delMemTitle: "3. 지연 회상 검사 (/10)",
+        digitsTitle: "3. 숫자 거꾸로 따라 하기 (/4)",
+        digitsSub: "1초에 한 숫자씩 아래로 읽어줍니다. 성공하면 길이를 늘리고, 실패하면 동일 길이의 대체 숫자를 읽습니다. 2회 연속 실패 시 중단합니다.",
+        dig3: "3자리 숫자 (4-9-3 또는 5-2-6)",
+        dig4: "4자리 숫자 (3-8-1-4 또는 1-7-9-5)",
+        dig5: "5자리 숫자 (6-2-9-7-1 또는 4-8-5-2-7)",
+        dig6: "6자리 숫자 (7-1-8-4-6-2 또는 8-3-1-9-6-4)",
+        monthsTitle: "4. 연도 월 거꾸로 말하기 (/1)",
+        monthsSub: "12월부터 역순으로 가능한 빠르고 정확하게 말하도록 지시합니다. 정상 완료 시간은 30초 미만입니다.",
+        lblTimeSec: "소요 시간 (초):",
+        lblErrorNum: "오류 횟수:",
+        lblMonthsScore: "월 역순 점수 (/1):",
+        delMemTitle: "5. 지연 회상 검사 (/10)",
         delMemSub: "단어를 다시 읽어주지 마십시오. 기억나는 단어를 모두 말하도록 하십시오.",
         delMemScoreLbl: "기억해낸 단어 수:",
+        mbessTitle: "수정된 균형 오류 점수 시스템 (mBESS)",
+        mbessSub: "단단한 바닥에서 눈을 감고 양손을 골반에 얹은 채 20초간 유지합니다. (시행당 최대 10개 오류)",
+        stance1: "양발 모아 서기",
+        stance2: "비주족 한 발로 서기",
+        stance3: "일렬 서기 (비주족 뒤로)",
+        mbessTotalLbl: "총 mBESS 오류 수:",
+        tgTitle: "시간 측정 탠덤 보행 (3미터 라인)",
+        tgSub: "3미터 테이프 선을 따라 일렬(발꿈치-발가락)로 빠르게 걸어간 뒤, 선을 벗어나지 않고 돌아옵니다.",
+        tgT1: "1회 차 시간 (초):",
+        tgT2: "2회 차 시간 (초):",
+        tgT3: "3회 차 시간 (초):",
+        tgFastest: "최고 기록:",
+        tgObsTitle: "보행 관찰 소견 / 오류:",
+        tgObs1: "라인 이탈",
+        tgObs2: "발 떨어짐",
+        tgObs3: "몸통 흔들림 / 불안정",
+        tgObs4: "어지럼증 / 메스꺼움",
+        ctgTitle: "복합 및 이중 과제 탠덤 보행 (선택)",
+        ctgFwd: "복합 전진 탠덤 (눈 뜨고 5걸음 / 눈 감고 5걸음)",
+        ctgOpen: "눈 뜨고 점수:",
+        ctgClosed: "눈 감고 점수:",
+        dtGaitTitle: "이중 과제 보행 (보행 + 인지 과제)",
+        dtTime: "평균 소요 시간 (초):",
+        dtAccuracy: "인지 과제 정확도:",
         rtlTitle: "단계적 학업 복귀 (RTL) 진행 단계",
         rtlSub: "선수에게 승인된 현재 학업 복귀 단계를 선택하십시오:",
         rtl1Title: "1단계: 가정 내 일상 활동 (인지적 휴식)",
@@ -650,7 +912,8 @@
         thStatus: "회복 상태",
         rowSympNum: "총 증상 수 (/22)",
         rowSympSev: "증상 심각도 (/132)",
-        rowCog: "인지 점수 (/50)",
+        rowCog: "인지 점수 (/55)",
+        rowGait: "최고 탠덤 보행 시간",
         repStageHeader: "현재 승인된 학업 및 스포츠 복귀 단계:",
         repRtlLabel: "학업 복귀 단계 (RTL):",
         repRtsLabel: "스포츠 복귀 단계 (RTS):",
@@ -811,9 +1074,41 @@
       let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
       let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
       let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      
+      let d3 = parseInt(document.getElementById('dig-score-3').value) || 0;
+      let d4 = parseInt(document.getElementById('dig-score-4').value) || 0;
+      let d5 = parseInt(document.getElementById('dig-score-5').value) || 0;
+      let d6 = parseInt(document.getElementById('dig-score-6').value) || 0;
+      let digits = d3 + d4 + d5 + d6;
+
+      let months = parseInt(document.getElementById('months-score').value) || 0;
       let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
-      let total = orient + t1 + t2 + t3 + delayed;
-      document.getElementById('nav-score-cog').textContent = `${total}/50`;
+
+      let total = orient + t1 + t2 + t3 + digits + months + delayed;
+      document.getElementById('nav-score-cog').textContent = `${total}/55`;
+    }
+
+    function adjErr(type, delta) {
+      mbessErrors[type] = Math.max(0, Math.min(10, mbessErrors[type] + delta));
+      document.getElementById(`err-${type}`).textContent = mbessErrors[type];
+      let total = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('mbess-total-display').textContent = `${total} / 30`;
+    }
+
+    function calcGait() {
+      let t1 = parseFloat(document.getElementById('tg-t1').value) || null;
+      let t2 = parseFloat(document.getElementById('tg-t2').value) || null;
+      let t3 = parseFloat(document.getElementById('tg-t3').value) || null;
+
+      let times = [t1, t2, t3].filter(t => t !== null && !isNaN(t));
+      if (times.length > 0) {
+        let minTime = Math.min(...times);
+        document.getElementById('tg-fastest').textContent = `${minTime.toFixed(1)} sec`;
+        document.getElementById('rep-c-gait').textContent = `${minTime.toFixed(1)} sec`;
+      } else {
+        document.getElementById('tg-fastest').textContent = '-- sec';
+        document.getElementById('rep-c-gait').textContent = '-- sec';
+      }
     }
 
     function toggleInstructions(id) {
@@ -831,7 +1126,7 @@
       // Known Baselines
       let bSymp = parseInt(document.getElementById('base-symp-num').value) || 0;
       let bSev = parseInt(document.getElementById('base-symp-sev').value) || 0;
-      let bCog = parseInt(document.getElementById('base-cog-score').value) || 45;
+      let bCog = parseInt(document.getElementById('base-cog-score').value) || 50;
 
       // Current Scores
       const scores = Object.values(symptomScores);
@@ -842,8 +1137,16 @@
       let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
       let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
       let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      
+      let d3 = parseInt(document.getElementById('dig-score-3').value) || 0;
+      let d4 = parseInt(document.getElementById('dig-score-4').value) || 0;
+      let d5 = parseInt(document.getElementById('dig-score-5').value) || 0;
+      let d6 = parseInt(document.getElementById('dig-score-6').value) || 0;
+      let digits = d3 + d4 + d5 + d6;
+
+      let months = parseInt(document.getElementById('months-score').value) || 0;
       let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
-      let cCog = orient + t1 + t2 + t3 + delayed;
+      let cCog = orient + t1 + t2 + t3 + digits + months + delayed;
 
       // Populate Table
       document.getElementById('rep-b-symp').textContent = bSymp;
@@ -860,6 +1163,8 @@
       document.getElementById('rep-c-cog').textContent = cCog;
       let dCog = cCog - bCog;
       document.getElementById('rep-d-cog').textContent = (dCog >= 0 ? '+' : '') + dCog;
+
+      calcGait();
 
       // Stages
       let rtlEl = document.querySelector('input[name="rtl-stage"]:checked');
@@ -892,7 +1197,7 @@
       const rtl = document.getElementById('rep-current-rtl').textContent;
       const rts = document.getElementById('rep-current-rts').textContent;
 
-      const emrText = `=== SCOAT6 FOLLOW-UP SERIAL REPORT (${currentLang.toUpperCase()}) ===\nAthlete: ${name}\nEvaluation Date: ${evalDate}\nCurrent Symptoms: ${document.getElementById('rep-c-symp').textContent}/22 (Baseline: ${document.getElementById('rep-b-symp').textContent})\nCurrent Severity: ${document.getElementById('rep-c-sev').textContent}/132 (Baseline: ${document.getElementById('rep-b-sev').textContent})\nCognitive Score: ${document.getElementById('rep-c-cog').textContent}/50 (Baseline: ${document.getElementById('rep-b-cog').textContent})\nApproved RTL: ${rtl}\nApproved RTS: ${rts}\n=============================================================`;
+      const emrText = `=== SCOAT6 FOLLOW-UP SERIAL REPORT (${currentLang.toUpperCase()}) ===\nAthlete: ${name}\nEvaluation Date: ${evalDate}\nCurrent Symptoms: ${document.getElementById('rep-c-symp').textContent}/22 (Baseline: ${document.getElementById('rep-b-symp').textContent})\nCurrent Severity: ${document.getElementById('rep-c-sev').textContent}/132 (Baseline: ${document.getElementById('rep-b-sev').textContent})\nCognitive Score: ${document.getElementById('rep-c-cog').textContent}/55 (Baseline: ${document.getElementById('rep-b-cog').textContent})\nFastest Tandem Gait: ${document.getElementById('rep-c-gait').textContent}\nApproved RTL: ${rtl}\nApproved RTS: ${rts}\n=============================================================`;
 
       navigator.clipboard.writeText(emrText).then(() => {
         alert(currentLang === 'ko' ? '추적 요약 내용이 클립보드에 복사되었습니다!' : 'Follow-up summary copied to clipboard!');
