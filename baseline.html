@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baseline SCOAT6 Concussion Screening</title>
+
+  <!-- Tailwind CSS & html2pdf CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    @media print {
+      body { background-color: #ffffff !important; color: #000000 !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .card-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans min-h-screen">
+
+  <!-- TOP HEADER / NAVBAR -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md no-print">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">📋</span>
+        <div>
+          <h1 class="font-bold text-lg leading-tight" data-i18n="appTitle">SCOAT6 Baseline Screener</h1>
+          <p class="text-xs text-slate-400" data-i18n="appSub">Pre-Season Baseline Medical & Symptom Evaluation</p>
+        </div>
+      </div>
+
+      <!-- Live Score Indicators -->
+      <div class="flex items-center space-x-2 text-xs">
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navSymp">Baseline Symptoms</span>
+          <span id="nav-score-symp" class="font-bold text-amber-400">0/22</span>
+        </div>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navSev">Baseline Severity</span>
+          <span id="nav-score-sev" class="font-bold text-amber-400">0/132</span>
+        </div>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navCog">Cognitive Baseline</span>
+          <span id="nav-score-cog" class="font-bold text-emerald-400">0/50</span>
+        </div>
+      </div>
+
+      <!-- Language Toggle -->
+      <button onclick="toggleLanguage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold text-xs transition shadow flex items-center gap-1.5">
+        <span>🌐</span> <span id="lang-btn-txt">한국어 (Korean)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MULTI-ASSESSMENT NAVIGATION BAR -->
+  <div class="bg-slate-800 text-white border-b border-slate-700 no-print">
+    <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-2 items-center justify-between text-xs">
+      <span class="text-slate-400 font-semibold uppercase tracking-wider" data-i18n="navModeLabel">Assessment Mode:</span>
+      <div class="flex flex-wrap gap-2">
+        <a href="baseline.html" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 shadow">
+          <span>📋</span> <span data-i18n="modeBaseline">Baseline SCOAT6</span>
+        </a>
+        <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>🏥</span> <span data-i18n="modeAcute">Acute SCOAT6 Clinical</span>
+        </a>
+        <a href="followup.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>🔄</span> <span data-i18n="modeFollowup">Follow-up Assessment</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto p-4 md:p-6">
+
+    <!-- NAVIGATION TABS -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-3 no-print">
+      <button onclick="switchTab('history')" id="tab-history" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-indigo-600 text-white shadow" data-i18n="tabHistory">1. Athlete Profile & History</button>
+      <button onclick="switchTab('symptoms')" id="tab-symptoms" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabSymptoms">2. Baseline Symptoms</button>
+      <button onclick="switchTab('cognitive')" id="tab-cognitive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabCognitive">3. Baseline Cognitive</button>
+      <button onclick="switchTab('balance')" id="tab-balance" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabBalance">4. Baseline mBESS</button>
+      <button onclick="switchTab('report')" id="tab-report" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabReport">5. Baseline Summary</button>
+    </div>
+
+    <!-- TAB 1: ATHLETE PROFILE & MEDICAL HISTORY -->
+    <section id="sec-history" class="tab-content space-y-6">
+      
+      <!-- Athlete Info -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-4 border-b pb-2" data-i18n="profTitle">Athlete Profile</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblName">Athlete Full Name</label>
+            <input type="text" id="input-name" class="w-full p-2 border rounded-lg" data-i18n-ph="phName">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblDob">Date of Birth</label>
+            <input type="date" id="input-dob" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblSport">Sport / Team Position</label>
+            <input type="text" id="input-sport" class="w-full p-2 border rounded-lg" data-i18n-ph="phSport">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblEvalDate">Baseline Screening Date</label>
+            <input type="date" id="input-eval-date" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblExaminer">Examiner / Medical Officer</label>
+            <input type="text" id="input-examiner" class="w-full p-2 border rounded-lg" data-i18n-ph="phExaminer">
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical & Concussion History -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="histTitle">Pre-Season Medical & Concussion History</h3>
+        <p class="text-xs text-slate-500 mb-4" data-i18n="histSub">Document baseline medical conditions that may influence concussion symptom evaluation or recovery.</p>
+
+        <div class="space-y-4 text-xs">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-50 p-3 rounded-lg border">
+              <label class="block font-semibold text-slate-800 mb-1" data-i18n="lblPriorConc">Number of Diagnosed Prior Concussions:</label>
+              <input type="number" min="0" max="20" value="0" id="hist-conc-num" class="w-full p-2 border rounded bg-white">
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border">
+              <label class="block font-semibold text-slate-800 mb-1" data-i18n="lblLastConc">Date / Time of Most Recent Concussion:</label>
+              <input type="text" id="hist-conc-last" placeholder="e.g. Oct 2025 (~6 months recovery)" class="w-full p-2 border rounded bg-white">
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-lg border space-y-2">
+            <strong class="block font-semibold text-slate-800" data-i18n="lblConditions">Check any pre-existing conditions diagnosed by a medical professional:</strong>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-adhd" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condAdhd">ADHD / ADD</span>
+              </label>
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-learning" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condLearning">Learning Disability / Dyslexia</span>
+              </label>
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-migraine" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condMigraine">Migraines / Frequent Headaches</span>
+              </label>
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-anxiety" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condAnxiety">Anxiety / Depression</span>
+              </label>
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-sleep" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condSleep">Sleep Disorder / Insomnia</span>
+              </label>
+              <label class="flex items-center space-x-2 bg-white p-2 rounded border">
+                <input type="checkbox" id="cond-ocular" class="w-4 h-4 text-indigo-600 rounded">
+                <span data-i18n="condOcular">Visual / Ocular Motor Issues</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-800 mb-1" data-i18n="lblMedNotes">Current Medications or Relevant Clinical Notes:</label>
+            <textarea id="hist-notes" rows="2" class="w-full p-2 border rounded-lg text-xs" placeholder="List ongoing medications or health notes..."></textarea>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: BASELINE SYMPTOMS -->
+    <section id="sec-symptoms" class="tab-content hidden space-y-4">
+      <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 card-box">
+        <div class="flex justify-between items-center mb-2">
+          <strong class="text-sm font-semibold" data-i18n="sympInstTitle">Instructions for Athlete:</strong>
+          <button onclick="toggleInstructions('symp-inst-body')" class="no-print bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1">
+            👁️ <span data-i18n="btnToggleInst">Hide / Show Instructions</span>
+          </button>
+        </div>
+        <p id="symp-inst-body" data-i18n="sympInstBody">
+          Rate how you usually feel on a normal day when fully healthy (0 = None, 6 = Severe). This establishes your baseline symptom score.
+        </p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-4 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800" data-i18n="sympScaleTitle">Baseline 22-Symptom Inventory</h3>
+          <div class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-700">
+            <span data-i18n="lblTotalScore">Baseline Symptoms:</span> <span id="symp-total-display" class="text-indigo-600 font-bold">0</span> / 22 | 
+            <span data-i18n="lblSeverity">Baseline Severity:</span> <span id="sev-total-display" class="text-indigo-600 font-bold">0</span> / 132
+          </div>
+        </div>
+
+        <div id="symptoms-grid" class="space-y-3">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BASELINE COGNITIVE -->
+    <section id="sec-cognitive" class="tab-content hidden space-y-6">
+      
+      <!-- Orientation -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="orientTitle">1. Baseline Orientation (/5)</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-3">
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qMonth">What month is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDate">What is today's date?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDay">What day of the week is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qYear">What year is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border md:col-span-2">
+            <span data-i18n="qTime">What time is it right now? (within 1 hour)</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Immediate Memory -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-2 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800 text-md" data-i18n="immMemTitle">2. Immediate Memory Baseline (10 Words - 3 Trials /30)</h3>
+          <div class="flex items-center space-x-2 no-print">
+            <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioEn">Audio EN</span></button>
+            <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioKo">Audio KO</span></button>
+          </div>
+        </div>
+
+        <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
+          <!-- Words rendered via JS -->
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial1Label">Trial 1</span>
+            <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial2Label">Trial 2</span>
+            <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial3Label">Trial 3</span>
+            <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Delayed Recall -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="delMemTitle">3. Baseline Delayed Recall (/10)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="delMemSub">Do not read the words again. Ask athlete to recall as many words as possible.</p>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs font-semibold text-slate-700" data-i18n="delMemScoreLbl">Words Recalled:</label>
+          <input type="number" min="0" max="10" value="0" id="delayed-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1.5 border rounded">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 4: BASELINE mBESS BALANCE -->
+    <section id="sec-balance" class="tab-content hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="mbessTitle">Baseline Modified Balance Error Scoring System (mBESS)</h3>
+        <p class="text-xs text-slate-600 mb-4" data-i18n="mbessSub">20-second stance testing on firm surface with eyes closed. Establish normal error baseline (max 10 errors per trial).</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance1">Double Leg Stance</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-dl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('dl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('dl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance2">Single Leg Stance (Non-Dominant)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-sl">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('sl', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('sl', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border text-center">
+            <h4 class="font-bold text-sm mb-2" data-i18n="stance3">Tandem Stance (Non-Dominant Back)</h4>
+            <div class="text-2xl font-bold text-indigo-600 my-2" id="err-tan">0</div>
+            <div class="flex justify-center gap-2 no-print">
+              <button onclick="adjErr('tan', -1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded font-bold">-</button>
+              <button onclick="adjErr('tan', 1)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded font-bold">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex justify-between items-center text-xs text-indigo-900">
+          <span class="font-semibold" data-i18n="mbessTotalLbl">Total Baseline mBESS Errors:</span>
+          <span id="mbess-total-display" class="text-base font-bold text-indigo-700">0 / 30</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: BASELINE CLINICAL REPORT -->
+    <section id="sec-report" class="tab-content hidden space-y-6">
+      
+      <!-- Top Action Toolbar -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-3 no-print">
+        <div>
+          <h3 class="font-bold text-slate-800" data-i18n="repToolbarTitle">SCOAT6 Baseline Profile Summary</h3>
+          <p class="text-xs text-slate-500" data-i18n="repToolbarSub">Export or save the athlete's pre-season baseline evaluation record.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="copyEMRText()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📋 <span data-i18n="btnTxtEmr">Copy Summary Text</span>
+          </button>
+          <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📥 <span data-i18n="btnTxtPdf">Download Baseline PDF</span>
+          </button>
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            🖨️ <span data-i18n="btnTxtPrint">Print Baseline Record</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PRINTABLE REPORT CONTAINER -->
+      <div id="pdf-report-content" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 text-slate-900 space-y-6 card-box">
+        
+        <!-- Header -->
+        <div class="border-b pb-4 flex justify-between items-start">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900" data-i18n="repDocTitle">SCOAT6 Baseline Evaluation Record</h2>
+            <p class="text-xs text-slate-500" data-i18n="repDocSub">Pre-Season Reference Standards - Sport Concussion Office Assessment Tool (6th Ed.)</p>
+          </div>
+          <div class="text-right text-xs text-slate-500">
+            <p><span data-i18n="repLblGenerated">Screened Date:</span> <span id="rep-gen-date">--</span></p>
+            <p><span data-i18n="repLblLang">Language:</span> <span id="rep-lang-indicator">English</span></p>
+          </div>
+        </div>
+
+        <!-- Demographics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs border">
+          <div><span class="text-slate-500 block" data-i18n="repLblAthlete">Athlete Name:</span><strong id="rep-name">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblDob">Date of Birth:</span><strong id="rep-dob">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblSport">Sport/Team:</span><strong id="rep-sport">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblExaminer">Examiner:</span><strong id="rep-examiner">--</strong></div>
+        </div>
+
+        <!-- Pre-existing Conditions Summary -->
+        <div class="bg-slate-50 p-3 rounded-lg text-xs border">
+          <strong class="block font-semibold text-slate-800 mb-1" data-i18n="repHistHeader">Pre-existing Medical History Summary:</strong>
+          <p><span class="text-slate-500" data-i18n="repPriorConc">Prior Concussions:</span> <strong id="rep-prior-conc">0</strong> | <span class="text-slate-500" data-i18n="repConditions">Diagnosed Conditions:</span> <strong id="rep-conditions">None Reported</strong></p>
+        </div>
+
+        <!-- Summary Scores Table -->
+        <div>
+          <h3 class="font-bold text-sm mb-2 border-b pb-1 text-indigo-900" data-i18n="repTableTitle">Baseline Score Breakdown</h3>
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="p-2 border" data-i18n="thModule">Assessment Module</th>
+                <th class="p-2 border" data-i18n="thScore">Baseline Score</th>
+                <th class="p-2 border" data-i18n="thMax">Max Possible</th>
+                <th class="p-2 border" data-i18n="thNote">Clinical Reference Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympNum">Baseline Total Symptoms</td>
+                <td class="p-2 border font-bold" id="rep-symp-num">0</td>
+                <td class="p-2 border">22</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteSympNum">Normal daily symptom baseline</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympSev">Baseline Symptom Severity</td>
+                <td class="p-2 border font-bold" id="rep-symp-sev">0</td>
+                <td class="p-2 border">132</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteSympSev">Likert scale sum baseline</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowCog">Baseline Cognitive Score</td>
+                <td class="p-2 border font-bold" id="rep-cog-score">0</td>
+                <td class="p-2 border">50</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteCog">Orientation + Memory baseline</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowMbess">Baseline mBESS Balance Errors</td>
+                <td class="p-2 border font-bold" id="rep-mbess-score">0</td>
+                <td class="p-2 border">30</td>
+                <td class="p-2 border text-slate-500" data-i18n="noteMbess">Normal balance error reference</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clinician Signature Box -->
+        <div class="pt-8 border-t text-xs grid grid-cols-2 gap-8">
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigClinician">Medical Officer Signature:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigDate">Date & License #:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let currentLang = 'en';
+    let mbessErrors = { dl: 0, sl: 0, tan: 0 };
+
+    const translations = {
+      en: {
+        appTitle: "SCOAT6 Baseline Screener",
+        appSub: "Pre-Season Baseline Medical & Symptom Evaluation",
+        navSymp: "Baseline Symptoms",
+        navSev: "Baseline Severity",
+        navCog: "Cognitive Baseline",
+        navModeLabel: "Assessment Mode:",
+        modeBaseline: "Baseline SCOAT6",
+        modeAcute: "Acute SCOAT6 Clinical",
+        modeFollowup: "Follow-up Assessment",
+        tabHistory: "1. Athlete Profile & History",
+        tabSymptoms: "2. Baseline Symptoms",
+        tabCognitive: "3. Baseline Cognitive",
+        tabBalance: "4. Baseline mBESS",
+        tabReport: "5. Baseline Summary",
+        profTitle: "Athlete Profile",
+        lblName: "Athlete Full Name",
+        lblDob: "Date of Birth",
+        lblSport: "Sport / Team Position",
+        lblEvalDate: "Baseline Screening Date",
+        lblExaminer: "Examiner / Medical Officer",
+        phName: "John Doe",
+        phSport: "Football / Midfielder",
+        phExaminer: "Dr. Smith, ATC",
+        histTitle: "Pre-Season Medical & Concussion History",
+        histSub: "Document baseline medical conditions that may influence concussion symptom evaluation or recovery.",
+        lblPriorConc: "Number of Diagnosed Prior Concussions:",
+        lblLastConc: "Date / Time of Most Recent Concussion:",
+        lblConditions: "Check any pre-existing conditions diagnosed by a medical professional:",
+        condAdhd: "ADHD / ADD",
+        condLearning: "Learning Disability / Dyslexia",
+        condMigraine: "Migraines / Frequent Headaches",
+        condAnxiety: "Anxiety / Depression",
+        condSleep: "Sleep Disorder / Insomnia",
+        condOcular: "Visual / Ocular Motor Issues",
+        lblMedNotes: "Current Medications or Relevant Clinical Notes:",
+        sympInstTitle: "Instructions for Athlete:",
+        btnToggleInst: "Hide / Show Instructions",
+        sympInstBody: "Rate how you usually feel on a normal day when fully healthy (0 = None, 6 = Severe). This establishes your baseline symptom score.",
+        sympScaleTitle: "Baseline 22-Symptom Inventory",
+        lblTotalScore: "Baseline Symptoms:",
+        lblSeverity: "Baseline Severity:",
+        orientTitle: "1. Baseline Orientation (/5)",
+        qMonth: "What month is it?",
+        qDate: "What is today's date?",
+        qDay: "What day of the week is it?",
+        qYear: "What year is it?",
+        qTime: "What time is it right now? (within 1 hour)",
+        immMemTitle: "2. Immediate Memory Baseline (10 Words - 3 Trials /30)",
+        btnAudioEn: "Audio EN",
+        btnAudioKo: "Audio KO",
+        trial1Label: "Trial 1",
+        trial2Label: "Trial 2",
+        trial3Label: "Trial 3",
+        delMemTitle: "3. Baseline Delayed Recall (/10)",
+        delMemSub: "Do not read the words again. Ask athlete to recall as many words as possible.",
+        delMemScoreLbl: "Words Recalled:",
+        mbessTitle: "Baseline Modified Balance Error Scoring System (mBESS)",
+        mbessSub: "20-second stance testing on firm surface with eyes closed. Establish normal error baseline (max 10 errors per trial).",
+        stance1: "Double Leg Stance",
+        stance2: "Single Leg Stance (Non-Dominant)",
+        stance3: "Tandem Stance (Non-Dominant Back)",
+        mbessTotalLbl: "Total Baseline mBESS Errors:",
+        repToolbarTitle: "SCOAT6 Baseline Profile Summary",
+        repToolbarSub: "Export or save the athlete's pre-season baseline evaluation record.",
+        btnTxtEmr: "Copy Summary Text",
+        btnTxtPdf: "Download Baseline PDF",
+        btnTxtPrint: "Print Baseline Record",
+        repDocTitle: "SCOAT6 Baseline Evaluation Record",
+        repDocSub: "Pre-Season Reference Standards - Sport Concussion Office Assessment Tool (6th Ed.)",
+        repLblGenerated: "Screened Date:",
+        repLblLang: "Language:",
+        repLblAthlete: "Athlete Name:",
+        repLblDob: "Date of Birth:",
+        repLblSport: "Sport/Team:",
+        repLblExaminer: "Examiner:",
+        repHistHeader: "Pre-existing Medical History Summary:",
+        repPriorConc: "Prior Concussions:",
+        repConditions: "Diagnosed Conditions:",
+        repTableTitle: "Baseline Score Breakdown",
+        thModule: "Assessment Module",
+        thScore: "Baseline Score",
+        thMax: "Max Possible",
+        thNote: "Clinical Reference Note",
+        rowSympNum: "Baseline Total Symptoms",
+        noteSympNum: "Normal daily symptom baseline",
+        rowSympSev: "Baseline Symptom Severity",
+        noteSympSev: "Likert scale sum baseline",
+        rowCog: "Baseline Cognitive Score",
+        noteCog: "Orientation + Memory baseline",
+        rowMbess: "Baseline mBESS Balance Errors",
+        noteMbess: "Normal balance error reference",
+        sigClinician: "Medical Officer Signature:",
+        sigDate: "Date & License #:"
+      },
+      ko: {
+        appTitle: "SCOAT6 기초 선가 검사 앱",
+        appSub: "시즌 전 기초 의학 및 증상 기준 평가",
+        navSymp: "기초 증상 수",
+        navSev: "기초 심각도",
+        navCog: "기초 인지 점수",
+        navModeLabel: "평가 모드:",
+        modeBaseline: "기초 SCOAT6",
+        modeAcute: "급성 SCOAT6 임상",
+        modeFollowup: "추적 관찰 평가",
+        tabHistory: "1. 선수 정보 및 기저 질환",
+        tabSymptoms: "2. 기초 증상 평가",
+        tabCognitive: "3. 기초 인지 검사",
+        tabBalance: "4. 기초 mBESS 균형",
+        tabReport: "5. 기초 평가 요약",
+        profTitle: "선수 인적 사항",
+        lblName: "선수 성명",
+        lblDob: "생년월일",
+        lblSport: "종목 / 포지션",
+        lblEvalDate: "기초 검사 일자",
+        lblExaminer: "검사자 / 담당의",
+        phName: "홍길동",
+        phSport: "축구 / 미드필더",
+        phExaminer: "김전문의",
+        histTitle: "시즌 전 병력 및 뇌진탕 과거력",
+        histSub: "뇌진탕 회복 및 증상 평가에 영향을 줄 수 있는 기저 의학적 상태를 기록합니다.",
+        lblPriorConc: "진단받은 과거 뇌진탕 횟수:",
+        lblLastConc: "최근 뇌진탕 발생 일시:",
+        lblConditions: "전문의에게 진단받은 기저 질환 (해당 항목 체크):",
+        condAdhd: "ADHD / 주의력 결핍",
+        condLearning: "학습 장애 / 난독증",
+        condMigraine: "편두통 / 만성 두통",
+        condAnxiety: "불안 장애 / 우울증",
+        condSleep: "수면 장애 / 불면증",
+        condOcular: "시각 / 안구 운동 장애",
+        lblMedNotes: "현재 복용 중인 약물 및 기타 참고 사항:",
+        sympInstTitle: "선수 지침 사항:",
+        btnToggleInst: "지침 숨기기 / 보기",
+        sympInstBody: "완전히 건강한 평소 상태에서 느끼는 증상 정도를 평가하십시오 (0 = 없음, 6 = 심각함). 이 점수가 선수 개별 기준 점수가 됩니다.",
+        sympScaleTitle: "기초 22가지 증상 평가",
+        lblTotalScore: "기초 증상 수:",
+        lblSeverity: "기초 심각도:",
+        orientTitle: "1. 기초 지남력 검사 (/5)",
+        qMonth: "지금은 몇 월입니까?",
+        qDate: "오늘은 며칠입니까?",
+        qDay: "오늘은 무슨 요일입니까?",
+        qYear: "올해는 몇 년도입니까?",
+        qTime: "지금은 몇 시쯤 되었습니까? (1시간 이내)",
+        immMemTitle: "2. 기초 즉각 기억력 검사 (10단어 - 3회 시행 /30)",
+        btnAudioEn: "영어 음성",
+        btnAudioKo: "한국어 음성",
+        trial1Label: "1회 차",
+        trial2Label: "2회 차",
+        trial3Label: "3회 차",
+        delMemTitle: "3. 기초 지연 회상 검사 (/10)",
+        delMemSub: "단어를 다시 읽어주지 마십시오. 기억나는 단어를 모두 말하도록 하십시오.",
+        delMemScoreLbl: "기억해낸 단어 수:",
+        mbessTitle: "기초 수정된 균형 오류 점수 시스템 (mBESS)",
+        mbessSub: "단단한 바닥에서 눈을 감고 20초간 균형을 유지합니다. 평소 자세 오류 기준을 측정합니다.",
+        stance1: "양발 모아 서기",
+        stance2: "비주족 한 발로 서기",
+        stance3: "일렬 서기 (비주족 뒤로)",
+        mbessTotalLbl: "총 기초 mBESS 오류 수:",
+        repToolbarTitle: "SCOAT6 기초 평가 요약",
+        repToolbarSub: "선수의 시즌 전 기초 평가 기록을 저장하거나 인쇄하십시오.",
+        btnTxtEmr: "요약 텍스트 복사",
+        btnTxtPdf: "기초 PDF 다운로드",
+        btnTxtPrint: "기초 기록 인쇄",
+        repDocTitle: "SCOAT6 기초 평가 기록부",
+        repDocSub: "시즌 전 표준 참조 기준 - 스포츠 뇌진탕 평가 도구 (제6판)",
+        repLblGenerated: "검사 일자:",
+        repLblLang: "사용 언어:",
+        repLblAthlete: "선수 성명:",
+        repLblDob: "생년월일:",
+        repLblSport: "종목/팀명:",
+        repLblExaminer: "검사자:",
+        repHistHeader: "기저 질환 및 과거력 요약:",
+        repPriorConc: "과거 뇌진탕 횟수:",
+        repConditions: "진단된 기저 질환:",
+        repTableTitle: "기초 평가 점수 요약",
+        thModule: "평가 모듈",
+        thScore: "기초 점수",
+        thMax: "최대 점수",
+        thNote: "임상 참조 소견",
+        rowSympNum: "기초 증상 항목 수",
+        noteSympNum: "평소 일상 증상 기준",
+        rowSympSev: "기초 증상 심각도",
+        noteSympSev: "Likert 합계 기준 점수",
+        rowCog: "기초 인지 기능 점수",
+        noteCog: "지남력 + 기억력 기준",
+        rowMbess: "기초 mBESS 균형 오류",
+        noteMbess: "평소 균형 오류 참조값",
+        sigClinician: "담당 의료진 서명:",
+        sigDate: "날짜 및 면허번호:"
+      }
+    };
+
+    const wordList = [
+      { en: 'Finger', ko: '손가락' },
+      { en: 'Penny', ko: '동전' },
+      { en: 'Blanket', ko: '담요' },
+      { en: 'Lemon', ko: '레몬' },
+      { en: 'Insect', ko: '곤충' },
+      { en: 'Candle', ko: '양초' },
+      { en: 'Paper', ko: '종이' },
+      { en: 'Sugar', ko: '설탕' },
+      { en: 'Sandwich', ko: '샌드위치' },
+      { en: 'Wagon', ko: '수레' }
+    ];
+
+    const symptomList = [
+      { id: 's1', en: 'Headache', ko: '두통' },
+      { id: 's2', en: 'Pressure in head', ko: '머리의 압박감' },
+      { id: 's3', en: 'Neck pain', ko: '목 통증' },
+      { id: 's4', en: 'Nausea or vomiting', ko: '메스꺼움 또는 구토' },
+      { id: 's5', en: 'Dizziness', ko: '어지럼증' },
+      { id: 's6', en: 'Blurred vision', ko: '시야 흐림' },
+      { id: 's7', en: 'Balance problems', ko: '균형 감각 문제' },
+      { id: 's8', en: 'Sensitivity to light', ko: '빛 민감성' },
+      { id: 's9', en: 'Sensitivity to noise', ko: '소리 민감성' },
+      { id: 's10', en: 'Feeling slowed down', ko: '둔해진 느낌' },
+      { id: 's11', en: 'Feeling in a fog', ko: '안개 속에 있는 듯 멍함' },
+      { id: 's12', en: 'Don\'t feel right', ko: '평소와 다른 이상한 느낌' },
+      { id: 's13', en: 'Difficulty concentrating', ko: '집중력 저하' },
+      { id: 's14', en: 'Difficulty remembering', ko: '기억력 저하' },
+      { id: 's15', en: 'Fatigue or low energy', ko: '피로감 / 기력 저하' },
+      { id: 's16', en: 'Confusion', ko: '혼란' },
+      { id: 's17', en: 'Drowsiness', ko: '졸림' },
+      { id: 's18', en: 'More emotional', ko: '감정 기복 심함' },
+      { id: 's19', en: 'Irritability', ko: '짜증 / 예민함' },
+      { id: 's20', en: 'Sadness', ko: '슬픔' },
+      { id: 's21', en: 'Nervous or anxious', ko: '초조함 / 불안' },
+      { id: 's22', en: 'Trouble falling asleep', ko: '수면 장애 / 입면 어려움' }
+    ];
+
+    let symptomScores = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+      document.getElementById('input-eval-date').value = new Date().toISOString().slice(0, 10);
+    });
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      document.getElementById('lang-btn-txt').textContent = currentLang === 'en' ? '한국어 (Korean)' : 'English (영어)';
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+    }
+
+    function applyLanguage() {
+      const dict = translations[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) el.placeholder = dict[key];
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700');
+      });
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('bg-indigo-600', 'text-white');
+      document.getElementById(`tab-${tabId}`).classList.remove('bg-white', 'text-slate-700');
+      if (tabId === 'report') updateReport();
+    }
+
+    function renderSymptoms() {
+      const container = document.getElementById('symptoms-grid');
+      container.innerHTML = symptomList.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-slate-50 rounded border gap-2">
+          <span class="text-xs font-medium text-slate-800">${idx + 1}. ${item[currentLang]}</span>
+          <div class="flex items-center space-x-1">
+            ${[0,1,2,3,4,5,6].map(num => `
+              <button onclick="setSymptomScore('${item.id}',${num})" 
+                id="btn-${item.id}-${num}" 
+                class="symp-btn-${item.id} w-7 h-7 text-xs rounded font-bold border transition${symptomScores[item.id] === num ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-indigo-50'}">
+                ${num}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setSymptomScore(sympId, val) {
+      symptomScores[sympId] = val;
+      renderSymptoms();
+      calcSymptoms();
+    }
+
+    function calcSymptoms() {
+      const scores = Object.values(symptomScores);
+      const count = scores.filter(s => s > 0).length;
+      const severity = scores.reduce((a, b) => a + b, 0);
+
+      document.getElementById('symp-total-display').textContent = count;
+      document.getElementById('sev-total-display').textContent = severity;
+      document.getElementById('nav-score-symp').textContent = `${count}/22`;
+      document.getElementById('nav-score-sev').textContent = `${severity}/132`;
+    }
+
+    function renderWords() {
+      const container = document.getElementById('words-container');
+      container.innerHTML = wordList.map((w, idx) => `
+        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-2 rounded text-center text-xs font-semibold flex justify-between items-center">
+          <span>${idx + 1}. ${w[currentLang]}</span>
+          <button onclick="speakWord('${w[currentLang]}')" class="no-print text-xs hover:scale-110">🔊</button>
+        </div>
+      `).join('');
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+        synth.speak(utter);
+      }
+    }
+
+    function playPacedAudio(lang) {
+      if (!('speechSynthesis' in window)) return;
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      wordList.forEach((w) => {
+        const utter = new SpeechSynthesisUtterance(w[lang]);
+        utter.lang = lang === 'ko' ? 'ko-KR' : 'en-US';
+        utter.rate = 0.9;
+        synth.speak(utter);
+      });
+    }
+
+    function calcCog() {
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      let total = orient + t1 + t2 + t3 + delayed;
+      document.getElementById('nav-score-cog').textContent = `${total}/50`;
+    }
+
+    function adjErr(type, delta) {
+      mbessErrors[type] = Math.max(0, Math.min(10, mbessErrors[type] + delta));
+      document.getElementById(`err-${type}`).textContent = mbessErrors[type];
+      let total = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('mbess-total-display').textContent = `${total} / 30`;
+    }
+
+    function toggleInstructions(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    function updateReport() {
+      document.getElementById('rep-gen-date').textContent = document.getElementById('input-eval-date').value || new Date().toLocaleDateString();
+      document.getElementById('rep-lang-indicator').textContent = currentLang === 'en' ? 'English' : '한국어';
+      document.getElementById('rep-name').textContent = document.getElementById('input-name').value || '--';
+      document.getElementById('rep-dob').textContent = document.getElementById('input-dob').value || '--';
+      document.getElementById('rep-sport').textContent = document.getElementById('input-sport').value || '--';
+      document.getElementById('rep-examiner').textContent = document.getElementById('input-examiner').value || '--';
+
+      // History
+      document.getElementById('rep-prior-conc').textContent = document.getElementById('hist-conc-num').value || '0';
+      
+      const selectedConditions = [];
+      if (document.getElementById('cond-adhd').checked) selectedConditions.push('ADHD');
+      if (document.getElementById('cond-learning').checked) selectedConditions.push('Learning Disability');
+      if (document.getElementById('cond-migraine').checked) selectedConditions.push('Migraines');
+      if (document.getElementById('cond-anxiety').checked) selectedConditions.push('Anxiety/Depression');
+      if (document.getElementById('cond-sleep').checked) selectedConditions.push('Sleep Disorder');
+      if (document.getElementById('cond-ocular').checked) selectedConditions.push('Ocular Issues');
+      
+      document.getElementById('rep-conditions').textContent = selectedConditions.length > 0 ? selectedConditions.join(', ') : 'None Reported';
+
+      // Scores
+      const scores = Object.values(symptomScores);
+      document.getElementById('rep-symp-num').textContent = scores.filter(s => s > 0).length;
+      document.getElementById('rep-symp-sev').textContent = scores.reduce((a, b) => a + b, 0);
+
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      document.getElementById('rep-cog-score').textContent = orient + t1 + t2 + t3 + delayed;
+
+      let mbessTotal = mbessErrors.dl + mbessErrors.sl + mbessErrors.tan;
+      document.getElementById('rep-mbess-score').textContent = mbessTotal;
+    }
+
+    function downloadPDF() {
+      updateReport();
+      const element = document.getElementById('pdf-report-content');
+      const name = document.getElementById('input-name').value.trim() || 'Athlete';
+      const date = new Date().toISOString().slice(0, 10);
+      
+      const opt = {
+        margin:       0.5,
+        filename:     `SCOAT6_Baseline_${name}_${date}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function copyEMRText() {
+      updateReport();
+      const name = document.getElementById('input-name').value || 'N/A';
+      const dob = document.getElementById('input-dob').value || 'N/A';
+      const evalDate = document.getElementById('input-eval-date').value || 'N/A';
+      const sympNum = document.getElementById('rep-symp-num').textContent;
+      const sympSev = document.getElementById('rep-symp-sev').textContent;
+      const cog = document.getElementById('rep-cog-score').textContent;
+      const mbess = document.getElementById('rep-mbess-score').textContent;
+
+      const emrText = `=== SCOAT6 BASELINE EVALUATION RECORD (${currentLang.toUpperCase()}) ===\nAthlete: ${name} (DOB: ${dob})\nScreening Date: ${evalDate}\nPrior Concussions: ${document.getElementById('rep-prior-conc').textContent}\nPre-existing Conditions: ${document.getElementById('rep-conditions').textContent}\nBaseline Symptoms: ${sympNum}/22\nBaseline Severity: ${sympSev}/132\nCognitive Baseline: ${cog}/50\nmBESS Balance Baseline: ${mbess}/30\n======================================================`;
+
+      navigator.clipboard.writeText(emrText).then(() => {
+        alert(currentLang === 'ko' ? '기초 요약 내용이 클립보드에 복사되었습니다!' : 'Baseline summary copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
