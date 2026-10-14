@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Follow-up SCOAT6 Concussion Assessment</title>
+
+  <!-- Tailwind CSS & html2pdf CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    @media print {
+      body { background-color: #ffffff !important; color: #000000 !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .card-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans min-h-screen">
+
+  <!-- TOP HEADER / NAVBAR -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md no-print">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🔄</span>
+        <div>
+          <h1 class="font-bold text-lg leading-tight" data-i18n="appTitle">SCOAT6 Follow-up Tracker</h1>
+          <p class="text-xs text-slate-400" data-i18n="appSub">Post-Concussion Serial Recovery & Return-to-Play Progress</p>
+        </div>
+      </div>
+
+      <!-- Live Score Indicators -->
+      <div class="flex items-center space-x-2 text-xs">
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navSymp">Follow-up Symptoms</span>
+          <span id="nav-score-symp" class="font-bold text-amber-400">0/22</span>
+        </div>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navSev">Severity</span>
+          <span id="nav-score-sev" class="font-bold text-amber-400">0/132</span>
+        </div>
+        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px]" data-i18n="navCog">Cognitive</span>
+          <span id="nav-score-cog" class="font-bold text-emerald-400">0/50</span>
+        </div>
+      </div>
+
+      <!-- Language Toggle -->
+      <button onclick="toggleLanguage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold text-xs transition shadow flex items-center gap-1.5">
+        <span>🌐</span> <span id="lang-btn-txt">한국어 (Korean)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MULTI-ASSESSMENT NAVIGATION BAR -->
+  <div class="bg-slate-800 text-white border-b border-slate-700 no-print">
+    <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-2 items-center justify-between text-xs">
+      <span class="text-slate-400 font-semibold uppercase tracking-wider" data-i18n="navModeLabel">Assessment Mode:</span>
+      <div class="flex flex-wrap gap-2">
+        <a href="followup.html" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 shadow">
+          <span>🔄</span> <span data-i18n="modeFollowup">Follow-up Assessment</span>
+        </a>
+        <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>🏥</span> <span data-i18n="modeAcute">Acute SCOAT6 Clinical</span>
+        </a>
+        <a href="baseline.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1 transition">
+          <span>📋</span> <span data-i18n="modeBaseline">Baseline SCOAT6</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto p-4 md:p-6">
+
+    <!-- NAVIGATION TABS -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-3 no-print">
+      <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-indigo-600 text-white shadow" data-i18n="tabProfile">1. Athlete & Injury Profile</button>
+      <button onclick="switchTab('symptoms')" id="tab-symptoms" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabSymptoms">2. Serial Symptoms</button>
+      <button onclick="switchTab('cognitive')" id="tab-cognitive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabCognitive">3. Follow-up Cognitive</button>
+      <button onclick="switchTab('rtp')" id="tab-rtp" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabRtp">4. Return-to-Play Progression</button>
+      <button onclick="switchTab('report')" id="tab-report" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm bg-white text-slate-700 hover:bg-slate-200" data-i18n="tabReport">5. Comparison & Report</button>
+    </div>
+
+    <!-- TAB 1: PROFILE & INJURY TIMELINE -->
+    <section id="sec-profile" class="tab-content space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-4 border-b pb-2" data-i18n="profTitle">Athlete & Serial Follow-up Profile</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblName">Athlete Full Name</label>
+            <input type="text" id="input-name" class="w-full p-2 border rounded-lg" data-i18n-ph="phName">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblDob">Date of Birth</label>
+            <input type="date" id="input-dob" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblSport">Sport / Team Position</label>
+            <input type="text" id="input-sport" class="w-full p-2 border rounded-lg" data-i18n-ph="phSport">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblInjuryDate">Initial Concussion Injury Date</label>
+            <input type="date" id="input-injury-date" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblFollowupDate">Follow-up Evaluation Date</label>
+            <input type="date" id="input-eval-date" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-600 text-xs mb-1" data-i18n="lblDaysPost">Days Post-Injury</label>
+            <input type="number" id="input-days-post" class="w-full p-2 border rounded-lg" placeholder="e.g. 7" value="7">
+          </div>
+        </div>
+      </div>
+
+      <!-- Baseline Scores Reference Entry -->
+      <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 card-box">
+        <h3 class="font-bold text-indigo-900 text-md mb-2 border-b border-indigo-200 pb-2" data-i18n="baseRefTitle">Enter Known Baseline Reference Scores</h3>
+        <p class="text-xs text-indigo-700 mb-4" data-i18n="baseRefSub">Input pre-season baseline values (if available) to generate real-time comparison tables.</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div>
+            <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseSymp">Baseline Total Symptoms</label>
+            <input type="number" min="0" max="22" value="0" id="base-symp-num" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseSev">Baseline Severity Score</label>
+            <input type="number" min="0" max="132" value="0" id="base-symp-sev" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseCog">Baseline Cognitive Score</label>
+            <input type="number" min="0" max="50" value="45" id="base-cog-score" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block font-medium text-indigo-800 mb-1" data-i18n="lblBaseMbess">Baseline mBESS Errors</label>
+            <input type="number" min="0" max="30" value="2" id="base-mbess-score" onchange="updateReport()" class="w-full p-2 border rounded bg-white font-bold text-slate-800">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SERIAL SYMPTOMS -->
+    <section id="sec-symptoms" class="tab-content hidden space-y-4">
+      <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 card-box">
+        <div class="flex justify-between items-center mb-2">
+          <strong class="text-sm font-semibold" data-i18n="sympInstTitle">Instructions for Athlete:</strong>
+          <button onclick="toggleInstructions('symp-inst-body')" class="no-print bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1">
+            👁️ <span data-i18n="btnToggleInst">Hide / Show Instructions</span>
+          </button>
+        </div>
+        <p id="symp-inst-body" data-i18n="sympInstBody">
+          Rate how you feel TODAY compared to your normal baseline on a scale of 0 (None) to 6 (Severe).
+        </p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-4 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800" data-i18n="sympScaleTitle">Follow-up 22-Symptom Inventory</h3>
+          <div class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-700">
+            <span data-i18n="lblTotalScore">Current Symptoms:</span> <span id="symp-total-display" class="text-indigo-600 font-bold">0</span> / 22 | 
+            <span data-i18n="lblSeverity">Current Severity:</span> <span id="sev-total-display" class="text-indigo-600 font-bold">0</span> / 132
+          </div>
+        </div>
+
+        <div id="symptoms-grid" class="space-y-3">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: FOLLOW-UP COGNITIVE -->
+    <section id="sec-cognitive" class="tab-content hidden space-y-6">
+      
+      <!-- Orientation -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="orientTitle">1. Follow-up Orientation (/5)</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-3">
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qMonth">What month is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDate">What is today's date?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qDay">What day of the week is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border">
+            <span data-i18n="qYear">What year is it?</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded border md:col-span-2">
+            <span data-i18n="qTime">What time is it right now? (within 1 hour)</span>
+            <input type="checkbox" onchange="calcCog()" class="cog-orient w-5 h-5 text-indigo-600 rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Immediate Memory -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <div class="flex flex-wrap justify-between items-center mb-2 border-b pb-2 gap-2">
+          <h3 class="font-bold text-slate-800 text-md" data-i18n="immMemTitle">2. Immediate Memory Test (10 Words - 3 Trials /30)</h3>
+          <div class="flex items-center space-x-2 no-print">
+            <button onclick="playPacedAudio('en')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioEn">Audio EN</span></button>
+            <button onclick="playPacedAudio('ko')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1">🔊 <span data-i18n="btnAudioKo">Audio KO</span></button>
+          </div>
+        </div>
+
+        <div id="words-container" class="grid grid-cols-2 md:grid-cols-5 gap-2 my-4">
+          <!-- Words rendered via JS -->
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial1Label">Trial 1</span>
+            <input type="number" min="0" max="10" value="0" id="trial-1-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial2Label">Trial 2</span>
+            <input type="number" min="0" max="10" value="0" id="trial-2-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+          <div class="bg-slate-50 p-2 rounded border">
+            <span class="block font-semibold" data-i18n="trial3Label">Trial 3</span>
+            <input type="number" min="0" max="10" value="0" id="trial-3-score" onchange="calcCog()" class="w-16 text-center text-base font-bold p-1 border rounded mt-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Delayed Recall -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="delMemTitle">3. Delayed Recall (/10)</h3>
+        <p class="text-xs text-slate-600 mb-3" data-i18n="delMemSub">Do not read the words again. Ask athlete to recall as many words as possible.</p>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs font-semibold text-slate-700" data-i18n="delMemScoreLbl">Words Recalled:</label>
+          <input type="number" min="0" max="10" value="0" id="delayed-score" onchange="calcCog()" class="w-20 text-center text-lg font-bold p-1.5 border rounded">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 4: RETURN-TO-PLAY PROGRESSION -->
+    <section id="sec-rtp" class="tab-content hidden space-y-6">
+      
+      <!-- Return to Learn -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="rtlTitle">Graduated Return-to-Learn (RTL) Progress</h3>
+        <p class="text-xs text-slate-500 mb-4" data-i18n="rtlSub">Select the current academic stage approved for the athlete:</p>
+
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rtl-stage" value="Stage 1" class="w-4 h-4 text-indigo-600" checked>
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rtl1Title">Stage 1: Daily Activities at Home (Cognitive Rest)</strong>
+              <span class="text-slate-500" data-i18n="rtl1Desc">Reading, screen time under 5-10 min. No school attendance.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rtl-stage" value="Stage 2" class="w-4 h-4 text-indigo-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rtl2Title">Stage 2: School Activities at Home</strong>
+              <span class="text-slate-500" data-i18n="rtl2Desc">Homework in 15-min blocks. Gradual increase in cognitive load.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rtl-stage" value="Stage 3" class="w-4 h-4 text-indigo-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rtl3Title">Stage 3: Return to School Part-Time</strong>
+              <span class="text-slate-500" data-i18n="rtl3Desc">Half-days, modified assignments, frequent rest breaks. No exams.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rtl-stage" value="Stage 4" class="w-4 h-4 text-indigo-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rtl4Title">Stage 4: Return to School Full-Time</strong>
+              <span class="text-slate-500" data-i18n="rtl4Desc">Full academic workload with minor accommodations if needed.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Return to Sport -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 card-box">
+        <h3 class="font-bold text-slate-800 text-md mb-2 border-b pb-2" data-i18n="rtsTitle">Graduated Return-to-Sport (RTS) Protocol</h3>
+        <p class="text-xs text-slate-500 mb-4" data-i18n="rtsSub">Minimum 24 hours required per step. If symptoms recur, drop back to previous stage.</p>
+
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 1" class="w-4 h-4 text-emerald-600" checked>
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts1Title">Step 1: Symptom-Limited Activity</strong>
+              <span class="text-slate-500" data-i18n="rts1Desc">Daily activities that do not provoke symptoms. Light walking.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 2" class="w-4 h-4 text-emerald-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts2Title">Step 2: Light Aerobic Exercise</strong>
+              <span class="text-slate-500" data-i18n="rts2Desc">Stationary bike or light jogging (HR < 70% max). No resistance training.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 3" class="w-4 h-4 text-emerald-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts3Title">Step 3: Sport-Specific Exercise</strong>
+              <span class="text-slate-500" data-i18n="rts3Desc">Running or sport drills. No head impact activities or body contact.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 4" class="w-4 h-4 text-emerald-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts4Title">Step 4: Non-Contact Training Drills</strong>
+              <span class="text-slate-500" data-i18n="rts4Desc">Harder drills, passing, progressive resistance training.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 5" class="w-4 h-4 text-emerald-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts5Title">Step 5: Full Contact Practice</strong>
+              <span class="text-slate-500" data-i18n="rts5Desc">Following medical clearance, participate in normal training.</span>
+            </div>
+          </label>
+          <label class="flex items-center space-x-3 p-2.5 bg-slate-50 rounded border hover:bg-slate-100">
+            <input type="radio" name="rts-stage" value="Step 6" class="w-4 h-4 text-emerald-600">
+            <div>
+              <strong class="text-slate-800 block" data-i18n="rts6Title">Step 6: Full Return to Competition</strong>
+              <span class="text-slate-500" data-i18n="rts6Desc">Unrestricted game play.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 5: COMPARISON REPORT & EXPORT -->
+    <section id="sec-report" class="tab-content hidden space-y-6">
+      
+      <!-- Action Buttons -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-3 no-print">
+        <div>
+          <h3 class="font-bold text-slate-800" data-i18n="repToolbarTitle">SCOAT6 Serial Comparison Report</h3>
+          <p class="text-xs text-slate-500" data-i18n="repToolbarSub">Export comparison summary between Baseline and Current Follow-up evaluation.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="copyEMRText()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📋 <span data-i18n="btnTxtEmr">Copy Summary Text</span>
+          </button>
+          <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            📥 <span data-i18n="btnTxtPdf">Download Comparison PDF</span>
+          </button>
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition shadow flex items-center gap-1">
+            🖨️ <span data-i18n="btnTxtPrint">Print Report</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PRINTABLE REPORT CONTAINER -->
+      <div id="pdf-report-content" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 text-slate-900 space-y-6 card-box">
+        
+        <!-- Header -->
+        <div class="border-b pb-4 flex justify-between items-start">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900" data-i18n="repDocTitle">SCOAT6 Follow-up & Serial Assessment Report</h2>
+            <p class="text-xs text-slate-500" data-i18n="repDocSub">Recovery Tracking & Return-to-Play Progress - SCOAT 6th Edition</p>
+          </div>
+          <div class="text-right text-xs text-slate-500">
+            <p><span data-i18n="repLblGenerated">Follow-up Date:</span> <span id="rep-eval-date">--</span></p>
+            <p><span data-i18n="repLblDays">Days Post-Injury:</span> <strong id="rep-days-post">7</strong></p>
+          </div>
+        </div>
+
+        <!-- Demographics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs border">
+          <div><span class="text-slate-500 block" data-i18n="repLblAthlete">Athlete Name:</span><strong id="rep-name">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblDob">Date of Birth:</span><strong id="rep-dob">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblSport">Sport/Team:</span><strong id="rep-sport">--</strong></div>
+          <div><span class="text-slate-500 block" data-i18n="repLblInjuryDate">Injury Date:</span><strong id="rep-inj-date">--</strong></div>
+        </div>
+
+        <!-- Side-by-Side Comparison Table -->
+        <div>
+          <h3 class="font-bold text-sm mb-2 border-b pb-1 text-indigo-900" data-i18n="repCompTitle">Baseline vs. Current Follow-up Comparison Table</h3>
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="p-2 border" data-i18n="thModule">Clinical Metric</th>
+                <th class="p-2 border" data-i18n="thBase">Known Baseline</th>
+                <th class="p-2 border" data-i18n="thCurrent">Current Follow-up</th>
+                <th class="p-2 border" data-i18n="thDiff">Net Difference</th>
+                <th class="p-2 border" data-i18n="thStatus">Recovery Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympNum">Total Symptoms (/22)</td>
+                <td class="p-2 border font-bold text-slate-600" id="rep-b-symp">0</td>
+                <td class="p-2 border font-bold text-indigo-600" id="rep-c-symp">0</td>
+                <td class="p-2 border font-bold" id="rep-d-symp">+0</td>
+                <td class="p-2 border" id="rep-s-symp">Baseline level</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowSympSev">Symptom Severity (/132)</td>
+                <td class="p-2 border font-bold text-slate-600" id="rep-b-sev">0</td>
+                <td class="p-2 border font-bold text-indigo-600" id="rep-c-sev">0</td>
+                <td class="p-2 border font-bold" id="rep-d-sev">+0</td>
+                <td class="p-2 border" id="rep-s-sev">Baseline level</td>
+              </tr>
+              <tr>
+                <td class="p-2 border font-medium" data-i18n="rowCog">Cognitive Score (/50)</td>
+                <td class="p-2 border font-bold text-slate-600" id="rep-b-cog">45</td>
+                <td class="p-2 border font-bold text-emerald-600" id="rep-c-cog">0</td>
+                <td class="p-2 border font-bold" id="rep-d-cog">-45</td>
+                <td class="p-2 border" id="rep-s-cog">Below baseline</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clearance & Stage Status Box -->
+        <div class="bg-slate-50 p-4 rounded-lg border text-xs space-y-2">
+          <h4 class="font-bold text-slate-800" data-i18n="repStageHeader">Current Approved Clearance & Recovery Stages:</h4>
+          <p><strong data-i18n="repRtlLabel">Return-to-Learn Stage:</strong> <span id="rep-current-rtl" class="font-semibold text-indigo-700">Stage 1</span></p>
+          <p><strong data-i18n="repRtsLabel">Return-to-Sport Step:</strong> <span id="rep-current-rts" class="font-semibold text-emerald-700">Step 1</span></p>
+        </div>
+
+        <!-- Clinician Sign Off -->
+        <div class="pt-8 border-t text-xs grid grid-cols-2 gap-8">
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigClinician">Clearing Physician / Medical Officer Signature:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-6" data-i18n="sigDate">Date & License #:</p>
+            <div class="border-b border-slate-400 w-full"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let currentLang = 'en';
+
+    const translations = {
+      en: {
+        appTitle: "SCOAT6 Follow-up Tracker",
+        appSub: "Post-Concussion Serial Recovery & Return-to-Play Progress",
+        navSymp: "Follow-up Symptoms",
+        navSev: "Severity",
+        navCog: "Cognitive",
+        navModeLabel: "Assessment Mode:",
+        modeBaseline: "Baseline SCOAT6",
+        modeAcute: "Acute SCOAT6 Clinical",
+        modeFollowup: "Follow-up Assessment",
+        tabProfile: "1. Athlete & Injury Profile",
+        tabSymptoms: "2. Serial Symptoms",
+        tabCognitive: "3. Follow-up Cognitive",
+        tabRtp: "4. Return-to-Play Progression",
+        tabReport: "5. Comparison & Report",
+        profTitle: "Athlete & Serial Follow-up Profile",
+        lblName: "Athlete Full Name",
+        lblDob: "Date of Birth",
+        lblSport: "Sport / Team Position",
+        lblInjuryDate: "Initial Concussion Injury Date",
+        lblFollowupDate: "Follow-up Evaluation Date",
+        lblDaysPost: "Days Post-Injury",
+        phName: "John Doe",
+        phSport: "Football / Midfielder",
+        baseRefTitle: "Enter Known Baseline Reference Scores",
+        baseRefSub: "Input pre-season baseline values (if available) to generate real-time comparison tables.",
+        lblBaseSymp: "Baseline Total Symptoms",
+        lblBaseSev: "Baseline Severity Score",
+        lblBaseCog: "Baseline Cognitive Score",
+        lblBaseMbess: "Baseline mBESS Errors",
+        sympInstTitle: "Instructions for Athlete:",
+        btnToggleInst: "Hide / Show Instructions",
+        sympInstBody: "Rate how you feel TODAY compared to your normal baseline on a scale of 0 (None) to 6 (Severe).",
+        sympScaleTitle: "Follow-up 22-Symptom Inventory",
+        lblTotalScore: "Current Symptoms:",
+        lblSeverity: "Current Severity:",
+        orientTitle: "1. Follow-up Orientation (/5)",
+        qMonth: "What month is it?",
+        qDate: "What is today's date?",
+        qDay: "What day of the week is it?",
+        qYear: "What year is it?",
+        qTime: "What time is it right now? (within 1 hour)",
+        immMemTitle: "2. Immediate Memory Test (10 Words - 3 Trials /30)",
+        btnAudioEn: "Audio EN",
+        btnAudioKo: "Audio KO",
+        trial1Label: "Trial 1",
+        trial2Label: "Trial 2",
+        trial3Label: "Trial 3",
+        delMemTitle: "3. Delayed Recall (/10)",
+        delMemSub: "Do not read the words again. Ask athlete to recall as many words as possible.",
+        delMemScoreLbl: "Words Recalled:",
+        rtlTitle: "Graduated Return-to-Learn (RTL) Progress",
+        rtlSub: "Select the current academic stage approved for the athlete:",
+        rtl1Title: "Stage 1: Daily Activities at Home (Cognitive Rest)",
+        rtl1Desc: "Reading, screen time under 5-10 min. No school attendance.",
+        rtl2Title: "Stage 2: School Activities at Home",
+        rtl2Desc: "Homework in 15-min blocks. Gradual increase in cognitive load.",
+        rtl3Title: "Stage 3: Return to School Part-Time",
+        rtl3Desc: "Half-days, modified assignments, frequent rest breaks. No exams.",
+        rtl4Title: "Stage 4: Return to School Full-Time",
+        rtl4Desc: "Full academic workload with minor accommodations if needed.",
+        rtsTitle: "Graduated Return-to-Sport (RTS) Protocol",
+        rtsSub: "Minimum 24 hours required per step. If symptoms recur, drop back to previous stage.",
+        rts1Title: "Step 1: Symptom-Limited Activity",
+        rts1Desc: "Daily activities that do not provoke symptoms. Light walking.",
+        rts2Title: "Step 2: Light Aerobic Exercise",
+        rts2Desc: "Stationary bike or light jogging (HR < 70% max). No resistance training.",
+        rts3Title: "Step 3: Sport-Specific Exercise",
+        rts3Desc: "Running or sport drills. No head impact activities or body contact.",
+        rts4Title: "Step 4: Non-Contact Training Drills",
+        rts4Desc: "Harder drills, passing, progressive resistance training.",
+        rts5Title: "Step 5: Full Contact Practice",
+        rts5Desc: "Following medical clearance, participate in normal training.",
+        rts6Title: "Step 6: Full Return to Competition",
+        rts6Desc: "Unrestricted game play.",
+        repToolbarTitle: "SCOAT6 Serial Comparison Report",
+        repToolbarSub: "Export comparison summary between Baseline and Current Follow-up evaluation.",
+        btnTxtEmr: "Copy Summary Text",
+        btnTxtPdf: "Download Comparison PDF",
+        btnTxtPrint: "Print Report",
+        repDocTitle: "SCOAT6 Follow-up & Serial Assessment Report",
+        repDocSub: "Recovery Tracking & Return-to-Play Progress - SCOAT 6th Edition",
+        repLblGenerated: "Follow-up Date:",
+        repLblDays: "Days Post-Injury:",
+        repLblAthlete: "Athlete Name:",
+        repLblDob: "Date of Birth:",
+        repLblSport: "Sport/Team:",
+        repLblInjuryDate: "Injury Date:",
+        repCompTitle: "Baseline vs. Current Follow-up Comparison Table",
+        thModule: "Clinical Metric",
+        thBase: "Known Baseline",
+        thCurrent: "Current Follow-up",
+        thDiff: "Net Difference",
+        thStatus: "Recovery Status",
+        rowSympNum: "Total Symptoms (/22)",
+        rowSympSev: "Symptom Severity (/132)",
+        rowCog: "Cognitive Score (/50)",
+        repStageHeader: "Current Approved Clearance & Recovery Stages:",
+        repRtlLabel: "Return-to-Learn Stage:",
+        repRtsLabel: "Return-to-Sport Step:",
+        sigClinician: "Clearing Physician / Medical Officer Signature:",
+        sigDate: "Date & License #:"
+      },
+      ko: {
+        appTitle: "SCOAT6 추적 관찰 앱",
+        appSub: "뇌진탕 후 연속 회복 및 단계적 복귀 추적",
+        navSymp: "추적 증상 수",
+        navSev: "심각도",
+        navCog: "인지 점수",
+        navModeLabel: "평가 모드:",
+        modeBaseline: "기초 SCOAT6",
+        modeAcute: "급성 SCOAT6 임상",
+        modeFollowup: "추적 관찰 평가",
+        tabProfile: "1. 선수 및 부상 프로필",
+        tabSymptoms: "2. 연속 증상 평가",
+        tabCognitive: "3. 추적 인지 검사",
+        tabRtp: "4. 단계적 스포츠 복귀",
+        tabReport: "5. 비교 보고서",
+        profTitle: "선수 및 연속 추적 프로필",
+        lblName: "선수 성명",
+        lblDob: "생년월일",
+        lblSport: "종목 / 포지션",
+        lblInjuryDate: "초기 뇌진탕 부상일",
+        lblFollowupDate: "추적 평가 일자",
+        lblDaysPost: "부상 후 경과 일수",
+        phName: "홍길동",
+        phSport: "축구 / 미드필더",
+        baseRefTitle: "시즌 전 기초 참조 점수 입력",
+        baseRefSub: "실시간 비교 표 작성을 위해 기존 기초 평가 점수를 입력하십시오.",
+        lblBaseSymp: "기초 총 증상 수",
+        lblBaseSev: "기초 심각도 점수",
+        lblBaseCog: "기초 인지 점수",
+        lblBaseMbess: "기초 mBESS 오류",
+        sympInstTitle: "선수 지침 사항:",
+        btnToggleInst: "지침 숨기기 / 보기",
+        sympInstBody: "평소 건강했던 기초 상태와 비교하여 '오늘' 느낀 증상 정도를 평가하십시오 (0 = 없음, 6 = 심각함).",
+        sympScaleTitle: "추적 22가지 증상 평가",
+        lblTotalScore: "현재 증상 수:",
+        lblSeverity: "현재 심각도:",
+        orientTitle: "1. 추적 지남력 검사 (/5)",
+        qMonth: "지금은 몇 월입니까?",
+        qDate: "오늘은 며칠입니까?",
+        qDay: "오늘은 무슨 요일입니까?",
+        qYear: "올해는 몇 년도입니까?",
+        qTime: "지금은 몇 시쯤 되었습니까? (1시간 이내)",
+        immMemTitle: "2. 즉각 기억력 검사 (10단어 - 3회 시행 /30)",
+        btnAudioEn: "영어 음성",
+        btnAudioKo: "한국어 음성",
+        trial1Label: "1회 차",
+        trial2Label: "2회 차",
+        trial3Label: "3회 차",
+        delMemTitle: "3. 지연 회상 검사 (/10)",
+        delMemSub: "단어를 다시 읽어주지 마십시오. 기억나는 단어를 모두 말하도록 하십시오.",
+        delMemScoreLbl: "기억해낸 단어 수:",
+        rtlTitle: "단계적 학업 복귀 (RTL) 진행 단계",
+        rtlSub: "선수에게 승인된 현재 학업 복귀 단계를 선택하십시오:",
+        rtl1Title: "1단계: 가정 내 일상 활동 (인지적 휴식)",
+        rtl1Desc: "독서 및 스크린 사용 5-10분 이내 제한. 등교 금지.",
+        rtl2Title: "2단계: 가정 내 학습 활동",
+        rtl2Desc: "15분 단위 과제 수행. 인지적 부하 단계적 증가.",
+        rtl3Title: "3단계: 부분 등교 복귀",
+        rtl3Desc: "반일 수업, 과제 조정, 빈번한 휴식 제공. 시험 금지.",
+        rtl4Title: "4단계: 정상 등교 완전 복귀",
+        rtl4Desc: "정상 학업 수행 (필요시 최소한의 편의 제공).",
+        rtsTitle: "단계적 스포츠 복귀 (RTS) 프로토콜",
+        rtsSub: "각 단계당 최소 24시간 소요. 증상 재발 시 이전 단계로 후퇴.",
+        rts1Title: "1단계: 증상 제한적 일상 활동",
+        rts1Desc: "증상을 유발하지 않는 일상 활동. 가벼운 산책.",
+        rts2Title: "2단계: 가벼운 유산소 운동",
+        rts2Desc: "실내 자전거 또는 가벼운 조깅 (최고 심박수 < 70%). 근력 운동 금지.",
+        rts3Title: "3단계: 종목 특화 운동",
+        rts3Desc: "러닝 및 스포츠 훈련 훈련. 머리 충격 및 신체 접촉 금지.",
+        rts4Title: "4단계: 비접촉 전술 훈련",
+        rts4Desc: "강도 높은 훈련, 패스 훈련, 점진적 근력 운동.",
+        rts5Title: "5단계: 신체 접촉 정상 연습",
+        rts5Desc: "의무진 최종 승인 후 정상 팀 연습 참가.",
+        rts6Title: "6단계: 경기 완전 복귀",
+        rts6Desc: "제한 없는 정식 경기 출전.",
+        repToolbarTitle: "SCOAT6 연속 비교 보고서",
+        repToolbarSub: "기초 점수와 현재 추적 평가 점수 간의 비교 요약본을 출력하십시오.",
+        btnTxtEmr: "요약 텍스트 복사",
+        btnTxtPdf: "비교 PDF 다운로드",
+        btnTxtPrint: "보고서 인쇄",
+        repDocTitle: "SCOAT6 추적 및 연속 평가 보고서",
+        repDocSub: "회복 추적 및 스포츠 복귀 경과 - SCOAT 제6판",
+        repLblGenerated: "추적 평가일:",
+        repLblDays: "부상 후 경과일:",
+        repLblAthlete: "선수 성명:",
+        repLblDob: "생년월일:",
+        repLblSport: "종목/팀명:",
+        repLblInjuryDate: "부상일:",
+        repCompTitle: "기초 대비 현재 추적 점수 비교 표",
+        thModule: "임상 지표",
+        thBase: "기존 기초 점수",
+        thCurrent: "현재 추적 점수",
+        thDiff: "순 변화량",
+        thStatus: "회복 상태",
+        rowSympNum: "총 증상 수 (/22)",
+        rowSympSev: "증상 심각도 (/132)",
+        rowCog: "인지 점수 (/50)",
+        repStageHeader: "현재 승인된 학업 및 스포츠 복귀 단계:",
+        repRtlLabel: "학업 복귀 단계 (RTL):",
+        repRtsLabel: "스포츠 복귀 단계 (RTS):",
+        sigClinician: "최종 승인 의료진 서명:",
+        sigDate: "날짜 및 면허번호:"
+      }
+    };
+
+    const wordList = [
+      { en: 'Finger', ko: '손가락' },
+      { en: 'Penny', ko: '동전' },
+      { en: 'Blanket', ko: '담요' },
+      { en: 'Lemon', ko: '레몬' },
+      { en: 'Insect', ko: '곤충' },
+      { en: 'Candle', ko: '양초' },
+      { en: 'Paper', ko: '종이' },
+      { en: 'Sugar', ko: '설탕' },
+      { en: 'Sandwich', ko: '샌드위치' },
+      { en: 'Wagon', ko: '수레' }
+    ];
+
+    const symptomList = [
+      { id: 's1', en: 'Headache', ko: '두통' },
+      { id: 's2', en: 'Pressure in head', ko: '머리의 압박감' },
+      { id: 's3', en: 'Neck pain', ko: '목 통증' },
+      { id: 's4', en: 'Nausea or vomiting', ko: '메스꺼움 또는 구토' },
+      { id: 's5', en: 'Dizziness', ko: '어지럼증' },
+      { id: 's6', en: 'Blurred vision', ko: '시야 흐림' },
+      { id: 's7', en: 'Balance problems', ko: '균형 감각 문제' },
+      { id: 's8', en: 'Sensitivity to light', ko: '빛 민감성' },
+      { id: 's9', en: 'Sensitivity to noise', ko: '소리 민감성' },
+      { id: 's10', en: 'Feeling slowed down', ko: '둔해진 느낌' },
+      { id: 's11', en: 'Feeling in a fog', ko: '안개 속에 있는 듯 멍함' },
+      { id: 's12', en: 'Don\'t feel right', ko: '평소와 다른 이상한 느낌' },
+      { id: 's13', en: 'Difficulty concentrating', ko: '집중력 저하' },
+      { id: 's14', en: 'Difficulty remembering', ko: '기억력 저하' },
+      { id: 's15', en: 'Fatigue or low energy', ko: '피로감 / 기력 저하' },
+      { id: 's16', en: 'Confusion', ko: '혼란' },
+      { id: 's17', en: 'Drowsiness', ko: '졸림' },
+      { id: 's18', en: 'More emotional', ko: '감정 기복 심함' },
+      { id: 's19', en: 'Irritability', ko: '짜증 / 예민함' },
+      { id: 's20', en: 'Sadness', ko: '슬픔' },
+      { id: 's21', en: 'Nervous or anxious', ko: '초조함 / 불안' },
+      { id: 's22', en: 'Trouble falling asleep', ko: '수면 장애 / 입면 어려움' }
+    ];
+
+    let symptomScores = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+      document.getElementById('input-eval-date').value = new Date().toISOString().slice(0, 10);
+    });
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      document.getElementById('lang-btn-txt').textContent = currentLang === 'en' ? '한국어 (Korean)' : 'English (영어)';
+      applyLanguage();
+      renderSymptoms();
+      renderWords();
+      updateReport();
+    }
+
+    function applyLanguage() {
+      const dict = translations[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) el.placeholder = dict[key];
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700');
+      });
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('bg-indigo-600', 'text-white');
+      document.getElementById(`tab-${tabId}`).classList.remove('bg-white', 'text-slate-700');
+      if (tabId === 'report') updateReport();
+    }
+
+    function renderSymptoms() {
+      const container = document.getElementById('symptoms-grid');
+      container.innerHTML = symptomList.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-slate-50 rounded border gap-2">
+          <span class="text-xs font-medium text-slate-800">${idx + 1}. ${item[currentLang]}</span>
+          <div class="flex items-center space-x-1">
+            ${[0,1,2,3,4,5,6].map(num => `
+              <button onclick="setSymptomScore('${item.id}',${num})" 
+                id="btn-${item.id}-${num}" 
+                class="symp-btn-${item.id} w-7 h-7 text-xs rounded font-bold border transition${symptomScores[item.id] === num ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-indigo-50'}">
+                ${num}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setSymptomScore(sympId, val) {
+      symptomScores[sympId] = val;
+      renderSymptoms();
+      calcSymptoms();
+    }
+
+    function calcSymptoms() {
+      const scores = Object.values(symptomScores);
+      const count = scores.filter(s => s > 0).length;
+      const severity = scores.reduce((a, b) => a + b, 0);
+
+      document.getElementById('symp-total-display').textContent = count;
+      document.getElementById('sev-total-display').textContent = severity;
+      document.getElementById('nav-score-symp').textContent = `${count}/22`;
+      document.getElementById('nav-score-sev').textContent = `${severity}/132`;
+    }
+
+    function renderWords() {
+      const container = document.getElementById('words-container');
+      container.innerHTML = wordList.map((w, idx) => `
+        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-2 rounded text-center text-xs font-semibold flex justify-between items-center">
+          <span>${idx + 1}. ${w[currentLang]}</span>
+          <button onclick="speakWord('${w[currentLang]}')" class="no-print text-xs hover:scale-110">🔊</button>
+        </div>
+      `).join('');
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+        synth.speak(utter);
+      }
+    }
+
+    function playPacedAudio(lang) {
+      if (!('speechSynthesis' in window)) return;
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      wordList.forEach((w) => {
+        const utter = new SpeechSynthesisUtterance(w[lang]);
+        utter.lang = lang === 'ko' ? 'ko-KR' : 'en-US';
+        utter.rate = 0.9;
+        synth.speak(utter);
+      });
+    }
+
+    function calcCog() {
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      let total = orient + t1 + t2 + t3 + delayed;
+      document.getElementById('nav-score-cog').textContent = `${total}/50`;
+    }
+
+    function toggleInstructions(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    function updateReport() {
+      document.getElementById('rep-eval-date').textContent = document.getElementById('input-eval-date').value || new Date().toLocaleDateString();
+      document.getElementById('rep-days-post').textContent = document.getElementById('input-days-post').value || '7';
+      document.getElementById('rep-name').textContent = document.getElementById('input-name').value || '--';
+      document.getElementById('rep-dob').textContent = document.getElementById('input-dob').value || '--';
+      document.getElementById('rep-sport').textContent = document.getElementById('input-sport').value || '--';
+      document.getElementById('rep-inj-date').textContent = document.getElementById('input-injury-date').value || '--';
+
+      // Known Baselines
+      let bSymp = parseInt(document.getElementById('base-symp-num').value) || 0;
+      let bSev = parseInt(document.getElementById('base-symp-sev').value) || 0;
+      let bCog = parseInt(document.getElementById('base-cog-score').value) || 45;
+
+      // Current Scores
+      const scores = Object.values(symptomScores);
+      let cSymp = scores.filter(s => s > 0).length;
+      let cSev = scores.reduce((a, b) => a + b, 0);
+
+      let orient = document.querySelectorAll('.cog-orient:checked').length;
+      let t1 = parseInt(document.getElementById('trial-1-score').value) || 0;
+      let t2 = parseInt(document.getElementById('trial-2-score').value) || 0;
+      let t3 = parseInt(document.getElementById('trial-3-score').value) || 0;
+      let delayed = parseInt(document.getElementById('delayed-score').value) || 0;
+      let cCog = orient + t1 + t2 + t3 + delayed;
+
+      // Populate Table
+      document.getElementById('rep-b-symp').textContent = bSymp;
+      document.getElementById('rep-c-symp').textContent = cSymp;
+      let dSymp = cSymp - bSymp;
+      document.getElementById('rep-d-symp').textContent = (dSymp >= 0 ? '+' : '') + dSymp;
+
+      document.getElementById('rep-b-sev').textContent = bSev;
+      document.getElementById('rep-c-sev').textContent = cSev;
+      let dSev = cSev - bSev;
+      document.getElementById('rep-d-sev').textContent = (dSev >= 0 ? '+' : '') + dSev;
+
+      document.getElementById('rep-b-cog').textContent = bCog;
+      document.getElementById('rep-c-cog').textContent = cCog;
+      let dCog = cCog - bCog;
+      document.getElementById('rep-d-cog').textContent = (dCog >= 0 ? '+' : '') + dCog;
+
+      // Stages
+      let rtlEl = document.querySelector('input[name="rtl-stage"]:checked');
+      let rtsEl = document.querySelector('input[name="rts-stage"]:checked');
+      document.getElementById('rep-current-rtl').textContent = rtlEl ? rtlEl.value : 'Stage 1';
+      document.getElementById('rep-current-rts').textContent = rtsEl ? rtsEl.value : 'Step 1';
+    }
+
+    function downloadPDF() {
+      updateReport();
+      const element = document.getElementById('pdf-report-content');
+      const name = document.getElementById('input-name').value.trim() || 'Athlete';
+      const date = new Date().toISOString().slice(0, 10);
+      
+      const opt = {
+        margin:       0.5,
+        filename:     `SCOAT6_Followup_${name}_${date}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function copyEMRText() {
+      updateReport();
+      const name = document.getElementById('input-name').value || 'N/A';
+      const evalDate = document.getElementById('rep-eval-date').textContent;
+      const rtl = document.getElementById('rep-current-rtl').textContent;
+      const rts = document.getElementById('rep-current-rts').textContent;
+
+      const emrText = `=== SCOAT6 FOLLOW-UP SERIAL REPORT (${currentLang.toUpperCase()}) ===\nAthlete: ${name}\nEvaluation Date: ${evalDate}\nCurrent Symptoms: ${document.getElementById('rep-c-symp').textContent}/22 (Baseline: ${document.getElementById('rep-b-symp').textContent})\nCurrent Severity: ${document.getElementById('rep-c-sev').textContent}/132 (Baseline: ${document.getElementById('rep-b-sev').textContent})\nCognitive Score: ${document.getElementById('rep-c-cog').textContent}/50 (Baseline: ${document.getElementById('rep-b-cog').textContent})\nApproved RTL: ${rtl}\nApproved RTS: ${rts}\n=============================================================`;
+
+      navigator.clipboard.writeText(emrText).then(() => {
+        alert(currentLang === 'ko' ? '추적 요약 내용이 클립보드에 복사되었습니다!' : 'Follow-up summary copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
